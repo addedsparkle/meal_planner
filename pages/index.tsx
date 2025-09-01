@@ -1,10 +1,9 @@
 import Head from "next/head";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useState } from "react";
 import MealPlan from "@/components/MealPlan";
 import { WeekPlan } from "@/types/WeekPlan";
-import { generateMealPlan } from "@/lib/mealPlan";
+import { generateMealPlan, getReplacementMeal } from "@/lib/mealPlan";
 import generateShoppingList from "@/lib/generateShoppingList";
 import { Ingredient } from "@/types/Ingredient";
 import ShoppingList from "@/components/ShoppingList";
@@ -27,6 +26,12 @@ export default function Home() {
     setShoppingList(shoppingList);
   };
 
+  const replaceRecipe = (index: number) => {
+    const newMealPlan = getReplacementMeal(index, mealPlan, recipes);
+    setMealPlan(newMealPlan);
+    setShoppingList(generateShoppingList(newMealPlan));
+  };
+
   const removeFromShoppingList = (itemId) => {
     setShoppingList((prev) => {
       const newList = new Map(prev);
@@ -47,7 +52,7 @@ export default function Home() {
       </Head>
 
       <main>
-        <Header title="Welcome to my app!" />
+        <Header title="Sparkle Meal Planner" />
         <RecipeManagement
           addRecipe={(recipe: Recipe) =>
             setRecipes((prev) => [...prev, recipe])
@@ -66,20 +71,13 @@ export default function Home() {
               disabled={false}
             />
           </div>
-          <MealPlan
-            mealPlan={mealPlan}
-            replaceRecipe={function (index: number): void {
-              throw new Error("Function not implemented.");
-            }}
-          />
+          <MealPlan mealPlan={mealPlan} replaceRecipe={replaceRecipe} />
         </div>
         <ShoppingList
           shoppingList={shoppingList}
           removeFromShoppingList={removeFromShoppingList}
         />
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -1,3 +1,7 @@
 export default function Header({ title }: { title: string }) {
-  return <h1 className="title">{title}</h1>;
+  return (
+    <div className="flex-auto">
+      <h1 className="title">{title}</h1>
+    </div>
+  );
 }
