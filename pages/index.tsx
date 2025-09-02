@@ -11,6 +11,7 @@ import GenerateButton from "@/components/GenerateButton";
 import RecipeList from "@/components/RecipeList";
 import RecipeManagement from "@/components/RecipeManagement";
 import { Recipe } from "@/types/Recipe";
+import { createRecipeDownloadUrl } from "@/lib/exportRecipes";
 
 export default function Home() {
   const [mealPlan, setMealPlan] = useState<WeekPlan>([]);
@@ -47,7 +48,7 @@ export default function Home() {
   return (
     <div className="container">
       <Head>
-        <title>Next.js Starter!</title>
+        <title>SparklePlan</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -57,6 +58,7 @@ export default function Home() {
           addRecipe={(recipe: Recipe) =>
             setRecipes((prev) => [...prev, recipe])
           }
+          generateDownloadUrl={() => createRecipeDownloadUrl(recipes)}
         />
         <div className="bg-white rounded-lg shadow-lg p-6">
           <RecipeList recipes={recipes} deleteRecipe={deleteRecipe} />

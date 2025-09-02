@@ -1,25 +1,37 @@
 import { Recipe } from "@/types/Recipe";
-import { Download, Plus, Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import { useState } from "react";
+import SingleFileUploader from "./FileUpload";
+import { AddRecipeForm } from "./AddRecipeForm";
 
 export default function RecipeManagement({
   addRecipe,
+  generateDownloadUrl,
 }: {
   addRecipe: (recipe: Recipe) => void;
+  generateDownloadUrl: () => string;
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [newRecipe, setNewRecipe] = useState({
     name: "",
     ingredients: [],
-    instructions: "",
   });
 
   const onAddRecipe = () => {
     if (newRecipe.name.trim()) {
       addRecipe({ ...newRecipe, id: Date.now() });
-      setNewRecipe({ name: "", ingredients: [], instructions: "" });
+      setNewRecipe({ name: "", ingredients: [] });
       setShowAddForm(false);
     }
+  };
+
+  const onDownload = () => {
+    const element = document.createElement("a");
+    element.href = generateDownloadUrl();
+    element.download = "recipes.json";
+    document.body.appendChild(element);
+    element.click();
   };
 
   return (
@@ -34,16 +46,16 @@ export default function RecipeManagement({
               onChange={() => {}}
               className="hidden"
             />
-            <Upload className="w-5 h-5 text-blue-600 hover:text-blue-800" />
+            <Upload
+              className="w-5 h-5 text-blue-600 hover:text-blue-800"
+              onClick={() => setShowUploadForm(true)}
+            />
           </label>
           <Download
             className="w-5 h-5 text-green-600 hover:text-green-800 cursor-pointer"
-            onClick={() => {}}
+            onClick={() => onDownload()}
           />
-          <Plus
-            className="w-6 h-6 text-blue-600 hover:text-blue-800 cursor-pointer"
-            onClick={() => setShowAddForm(!showAddForm)}
-          />
+          <AddRecipeForm addRecipe={addRecipe} />
         </div>
       </div>
 
@@ -69,14 +81,6 @@ export default function RecipeManagement({
             }
             className="w-full p-2 mb-2 border rounded h-20"
           />
-          <textarea
-            placeholder="Instructions"
-            value={newRecipe.instructions}
-            onChange={(e) =>
-              setNewRecipe({ ...newRecipe, instructions: e.target.value })
-            }
-            className="w-full p-2 mb-2 border rounded h-20"
-          />
           <div className="flex gap-2">
             <button
               onClick={onAddRecipe}
@@ -91,6 +95,17 @@ export default function RecipeManagement({
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {showUploadForm && (
+        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <SingleFileUploader
+            addRecipes={(recipes: Recipe[]) => {
+              recipes.forEach((recipe) => addRecipe(recipe));
+              setShowUploadForm(false);
+            }}
+          />
         </div>
       )}
     </div>
