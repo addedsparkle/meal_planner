@@ -9,10 +9,10 @@
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [3000],
+  "forwardPorts": [5173],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "npm install && npm install -g @anthropic/claude-code",
+  "postCreateCommand": "npm install -g npm@latest && npm install -g @anthropic-ai/claude-code && npm install",
 
   // Configure tool-specific properties.
   "customizations": {
@@ -20,7 +20,8 @@
       "settings": {},
       "extensions": [
         "streetsidesoftware.code-spell-checker",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "anthropic.claude-code"
       ]
     }
   }
