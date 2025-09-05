@@ -9,6 +9,10 @@ import type { Ingredient } from "./types/Ingredient";
 import type { WeekPlan } from "./types/WeekPlan";
 import { generateMealPlan, getReplacementMeal } from "./lib/mealPlan";
 import generateShoppingList from "./lib/generateShoppingList";
+import { FileUploader } from "./components/FileUploader";
+import { createRecipeDownloadUrl } from "./lib/exportRecipes";
+import { Button } from "react-aria-components";
+import { DownloadIcon } from "lucide-react";
 
 function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -51,7 +55,23 @@ function App() {
       <div className="bg-white border rounded p-6  border-gray-400 flex flex-col gap-2">
         <div className="flex-1 flex flex-row justify-between items-end">
           <h2 className="text-2xl text-emerald-800">Recipes</h2>
-          <div>
+          <div className="flex gap-2">
+            <FileUploader addRecipes={ (recipes: Recipe[]) => {
+              setRecipes((prev) => [...prev, ...recipes])
+            } } />
+            <Button onClick={() => {
+              const url = createRecipeDownloadUrl(recipes)
+              const link = document.createElement('a')
+              link.href = url
+              link.download = 'recipes.json'
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+              URL.revokeObjectURL(url)
+            }}
+            >
+              <DownloadIcon />
+            </Button>
             <AddRecipeForm
               addRecipe={(recipe: Recipe) => {
                 setRecipes((prev) => [...prev, recipe]);

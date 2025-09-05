@@ -1,6 +1,9 @@
+import { Button, Dialog, DialogTrigger, FileTrigger } from "react-aria-components";
 import type { Recipe } from "../types/Recipe";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { UploadIcon } from "lucide-react";
 
+import { Modal } from "./Modal";
 export const FileUploader = ({
   addRecipes,
 }: {
@@ -8,11 +11,7 @@ export const FileUploader = ({
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState<Recipe[]>([]);
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
+
 
   useEffect(() => {
     async function parseContents(file:File): Promise<void> {
@@ -24,30 +23,37 @@ export const FileUploader = ({
   },[file])
 
   return (
-    <>
-      <div className="input-group">
-        <input id="file" type="file" onChange={handleFileChange} />
-      </div>
+    <DialogTrigger>
+      <Button>
+        <UploadIcon />
+      </Button>
+      <Modal isDismissable>
+        <Dialog className="p-5">
+      <FileTrigger acceptedFileTypes={['application/json']} onSelect={(e) => {
+          const files = e ? Array.from(e) : [];
+          setFile(files[0])}}>
+        <Button className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-blue-700">Select file</Button>
+      </FileTrigger>
 
       {file && (
         <>
-          <dl>
-            {content.map((recipe: Recipe) => (
-              <>
-                <dt>{recipe.name}</dt>
-                <dd>{recipe.ingredients}</dd>
-              </>
-            ))}
-          </dl>
-          <button
+          <p>Load {content.length} recipes?</p>
+          <Button
+            slot="close"
             onClick={() => {
               addRecipes(content);
+              setContent([]);
+              setFile(null)
             }}
+            className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Add Recipes
-          </button>
+          </Button>
         </>
       )}
-    </>
+              </Dialog>
+            </Modal>
+          </DialogTrigger>
+
   );
 };
