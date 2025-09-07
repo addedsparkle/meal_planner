@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions'
-import type { Database } from '../types/database.types'
+import type { Database } from '../../src/types/database.types'
 
 const supabase = createClient(
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_DATABASE_URL!,
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   process.env.SUPABASE_SERVICE_ROLE_KEY! // Server-side key
 )

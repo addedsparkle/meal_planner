@@ -5,7 +5,6 @@ export const RecipeList = ({
   recipes,
 }: {
   recipes: Recipe[];
-  deleteRecipe: (index: number) => void;
 }) => {
   return recipes.length === 0 ? (
         <div>
