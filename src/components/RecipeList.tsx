@@ -1,9 +1,8 @@
-import { Cell, Checkbox, Column, ColumnResizer, ResizableTableContainer, Row, Table, TableBody, TableHeader } from "react-aria-components";
+import { Cell, Column, ColumnResizer, ResizableTableContainer, Row, Table, TableBody, TableHeader } from "react-aria-components";
 import type { Recipe } from "../types/Recipe";
 
 export const RecipeList = ({
   recipes,
-  deleteRecipe,
 }: {
   recipes: Recipe[];
   deleteRecipe: (index: number) => void;
