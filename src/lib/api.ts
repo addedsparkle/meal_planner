@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { Recipe } from '../types/Recipe'
 import type { Ingredient } from '../types/Ingredient'
+import type { Database } from '../types/database.types'
 
 const API_BASE_URL = '/.netlify/functions'
 
@@ -8,6 +9,8 @@ export interface ApiResponse<T> {
   data: T | null
   error: string | null
 }
+
+export type RecipeCreateParams = Database['public']['Tables']['recipes']['Insert']
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -33,12 +36,14 @@ export const recipesApi = {
     }
   },
 
-  create: async (recipe: Omit<Recipe, 'id'>): Promise<Recipe> => {
+  create: async (recipe: RecipeCreateParams): Promise<Recipe> => {
     try {
+      console.log(recipe)
       const response = await apiClient.post<ApiResponse<Recipe[]>>('/recipes', recipe)
       const result = response.data
       
       if (result.error) {
+        console.error(result.error)
         throw new Error(result.error)
       }
       
@@ -47,8 +52,10 @@ export const recipesApi = {
       }
       
       return result.data[0]
-    } catch (error) {
-      console.error('Error creating recipe:', error)
+    } catch (error: unknown) {
+      if (error instanceof Error){
+        console.error('Error creating recipe:', error.message)
+      }
       throw error
     }
   },

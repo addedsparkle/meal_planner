@@ -11,6 +11,7 @@
     "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
     "@netlify/functions": "^4.2.5",
     "@netlify/vite-plugin": "^2.5.9",
     "@supabase/supabase-js": "^2.57.2",
@@ -20,8 +21,10 @@
     "react": "^19.1.1",
     "react-aria-components": "^1.12.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.62.0",
     "supabase": "^2.39.2",
-    "tailwindcss-react-aria-components": "^2.0.1"
+    "tailwindcss-react-aria-components": "^2.0.1",
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

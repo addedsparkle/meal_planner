@@ -23,7 +23,7 @@ export const RecipeList = ({
         {recipes.map((recipe,index) => (
           <Row key={recipe.id} className={index%2 ? "bg-emerald-50" : "bg-white"}>
             <Cell className="font-semibold">{recipe.name}</Cell>
-            <Cell>{recipe.ingredients.join(", ")}</Cell>
+            <Cell>{recipe.description}</Cell>
             </Row>
         ))}
       

@@ -5,48 +5,32 @@ import type { Recipe } from "./types/Recipe";
 import { RecipeList } from "./components/RecipeList";
 import { GenerateButton } from "./components/GenerateButton";
 import { MealPlan } from "./components/MealPlan";
-import { ShoppingList } from "./components/ShoppingList";
-import type { Ingredient } from "./types/Ingredient";
 import type { WeekPlan } from "./types/WeekPlan";
 import { generateMealPlan, getReplacementMeal } from "./lib/mealPlan";
-import generateShoppingList from "./lib/generateShoppingList";
 import { FileUploader } from "./components/FileUploader";
 import { createRecipeDownloadUrl } from "./lib/exportRecipes";
 import { Button } from "react-aria-components";
 import { DownloadIcon } from "lucide-react";
-import { useCreateRecipe, useRecipes } from "./hooks/useRecipes";
+import { useRecipes } from "./hooks/useRecipes";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const { data: recipes = [], isLoading, error } = useRecipes();
-  const {mutate : addRecipeMutation} = useCreateRecipe();
 
   const [mealPlan, setMealPlan] = useState<WeekPlan>([]);
-  const [shoppingList, setShoppingList] = useState(
-    new Map<string, Ingredient>(),
-  );
+
 
   const onGenerateClick = () => {
     const mealPlan = generateMealPlan(recipes);
-    const shoppingList = generateShoppingList(mealPlan);
     setMealPlan(mealPlan);
-    setShoppingList(shoppingList);
   };
 
   const replaceRecipe = (index: number) => {
     const newMealPlan = getReplacementMeal(index, mealPlan, recipes);
     setMealPlan(newMealPlan);
-    setShoppingList(generateShoppingList(newMealPlan));
   };
 
-  const removeFromShoppingList = (itemId: string) => {
-    setShoppingList((prev) => {
-      const newList = new Map(prev);
-      newList.delete(itemId);
-      return newList;
-    });
-  };
 
   if (isLoading) {
     return <div className="bg-gray-100 h-screen p-10 flex justify-center items-center">
@@ -83,12 +67,7 @@ function AppContent() {
               >
                 <DownloadIcon />
               </Button>
-              <AddRecipeForm
-                addRecipe={(recipe: Recipe) => {
-                  console.log(recipe)
-                  addRecipeMutation(recipe)
-                }}
-              />
+              <AddRecipeForm />
             </div>
           </div>
           <RecipeList recipes={recipes} />
@@ -99,12 +78,6 @@ function AppContent() {
             <GenerateButton generateMealPlan={onGenerateClick} disabled={false} />
           </div>
           <MealPlan mealPlan={mealPlan} replaceRecipe={replaceRecipe} />
-        </div>
-        <div className="bg-white border rounded p-6 border-gray-400">
-          <ShoppingList
-            shoppingList={shoppingList}
-            removeFromShoppingList={removeFromShoppingList}
-          />
         </div>
       </div>
   );
