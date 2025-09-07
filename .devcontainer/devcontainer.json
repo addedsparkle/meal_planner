@@ -9,7 +9,7 @@
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [5173],
+  "forwardPorts": [5173, 3000, 8888, 3999],
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "npm install -g npm@latest && npm install -g @anthropic-ai/claude-code && npm install",
@@ -24,7 +24,7 @@
         "anthropic.claude-code"
       ]
     }
-  }
+  },
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
