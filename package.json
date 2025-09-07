@@ -11,6 +11,7 @@
     "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
   },
   "dependencies": {
+    "@netlify/vite-plugin": "^2.5.9",
     "@tailwindcss/vite": "^4.1.12",
     "react": "^19.1.1",
     "react-aria-components": "^1.12.1",
