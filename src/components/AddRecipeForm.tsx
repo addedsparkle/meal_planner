@@ -1,19 +1,30 @@
-import { PlusIcon } from "lucide-react";
+import { ChevronDown, PlusIcon } from "lucide-react";
 import {
   Input,
   TextArea,
-  DialogTrigger,
   Button,
   Dialog,
+  TextField,
+  Label,
+  Heading,
+  ModalOverlay,
+  Select,
+  SelectValue,
+  Popover,
+  ListBox,
+  ListBoxItem,
 } from "react-aria-components";
 import { Modal } from "./Modal";
 import { type RecipeFormData } from "../schemas/recipeSchema";
 import { useCreateRecipe } from "../hooks/useRecipes";
 import { useForm, type SubmitHandler, type SubmitErrorHandler } from "react-hook-form"
+import { useState } from "react";
+import { useIngredients } from "../hooks/useIngredients";
 
 export const AddRecipeForm = () => {
-
+  const [isOpen, setIsOpen] = useState(false)
   const {mutate} = useCreateRecipe()
+  const {data: ingredients} = useIngredients();
   const {
     register,
     handleSubmit,
@@ -25,14 +36,11 @@ export const AddRecipeForm = () => {
     try {
       const recipeData = {
         name: data.name,
-        description: data.description ?? null,
         instructions: data.instructions ?? null,
-        prep_time: data.prep_time ?? null,
-        cook_time: data.cook_time ?? null,
-        servings: data.servings ?? null,
       };
       mutate(recipeData);
       reset()
+      setIsOpen(false)
     } catch (error) {
       console.error('Failed to add recipe:', error);
     }
@@ -40,52 +48,47 @@ export const AddRecipeForm = () => {
   const onError: SubmitErrorHandler<RecipeFormData> = (errors) => {console.log(errors)}
 
   return (
-    <DialogTrigger>
-      <Button>
+    <div>
+      <Button onClick={() => {setIsOpen(true)}}>
         <PlusIcon />
       </Button>
-      <Modal isDismissable>
+      <ModalOverlay isDismissable isOpen={isOpen}>
+      <Modal>
         <Dialog className="p-6 w-full max-w-md">
-          <h2 className="text-xl font-semibold text-emerald-800 mb-4">Add New Recipe</h2>
           <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
-            <Input {...register("name")} type="text"
+            <Heading className="text-xl font-semibold text-emerald-800 mb-4" slot="title">Add New Recipe</Heading>
+            <TextField>
+              <Label>Name</Label>
+              <Input {...register("name")} type="text"
                     placeholder="Enter recipe name"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
+            </TextField>
 
-            <TextArea
-              {...register("description")} 
-              placeholder="Brief description of the recipe"
-              className="w-full p-2 border rounded h-20 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
+            <TextField>
+              <Label>Instructions</Label>
+              <TextArea
+                {...register("instructions")} 
+                placeholder="Step-by-step cooking instructions"
+                className="w-full p-2 border rounded h-32 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </TextField>
 
-            <TextArea
-              {...register("instructions")} 
-              placeholder="Step-by-step cooking instructions"
-              className="w-full p-2 border rounded h-32 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
-
-
-            <Input
-              {...register("prep_time")}
-              type="number"
-              placeholder="30"
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
-
-            <Input
-              {...register("cook_time")}
-              type="number"
-              placeholder="45"
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
-
-            <Input
-              {...register("servings")}
-              type="number"
-              placeholder="4"
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
+            <Heading>Ingredients</Heading>
+            <Select>
+              <Button>
+                <SelectValue />
+                <span aria-hidden="true">
+                  <ChevronDown size={16} />
+                </span>
+              </Button>
+              <Popover>
+                <ListBox>
+                  {ingredients && ingredients.map((ingredient) => (<ListBoxItem>{ingredient.name}</ListBoxItem>))}
+                  <ListBoxItem>Add New</ListBoxItem>
+                </ListBox>
+              </Popover>
+            </Select>
 
             <div className="flex gap-2 pt-4">
               <Button
@@ -106,6 +109,7 @@ export const AddRecipeForm = () => {
           </form>
         </Dialog>
       </Modal>
-    </DialogTrigger>
+      </ModalOverlay>
+    </div>
   );
 };

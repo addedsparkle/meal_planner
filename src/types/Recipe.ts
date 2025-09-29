@@ -1,10 +1,11 @@
 export type Recipe = {
     id: string
     name: string
-    description: string | null
-    instructions: string | null
-    prep_time: number | null
-    cook_time: number | null
-    servings: number | null
+    ingredients?: string
+    main_ingredient?: string
+    meal?: string
+    can_batch?: boolean
     created_at: string
 };
+
+export type RecipeIn = Omit<Recipe, 'id'>

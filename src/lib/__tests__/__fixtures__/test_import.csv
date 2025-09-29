@@ -1,0 +1,71 @@
+Name,Can batch,Ingredients,Main Ingredient,Meal
+Chicken Fajitas,No,"Chicken Breast, Fajita Seasoning, Guacamole, Peppers, Red Onion, Salsa, Soured Cream, Tortillas",Chicken,Dinner
+Keema Matar,Yes,"Beef Mince, Cinnamon stick, Fresh Ginger, Frozen Peas, Garlic, Mild curry powder, Onion, Tomato puree, chicken stock, passata with onion and garlic",Beef,Dinner
+"Mince, tatties and peas",Yes,"Beef Mince, Beef Oxo, Frozen Peas, Onion, Potatoes",Beef,Dinner
+French toast with bacon,No,"Bacon, Bread, Eggs, Maple Syrup",Bacon,"Breakfast, Dinner, Lunch"
+Fish and chips,No,"Breaded Fish, Chips, Frozen Peas",Fish,Dinner
+Carbonara,No,"Bacon, Onion, Parmesan Cheese, Spaghetti",Bacon,"Dinner, Lunch"
+Mushroom carbonara,No,"Bacon, Eggs, Mushroom, Onion, Parmesan Cheese",Bacon,"Dinner, Lunch"
+Irish stew,Yes,"Beef stock, Bisto, Carrots, Onion, Potatoes, Soy sauce, Stewing steak",Beef,Dinner
+Pizza,No,,,Dinner
+Bolognese pasta bake,Yes,"Beef Mince, Cheese, Chopped Tomatoes, Garlic, Italian Herbs, Macaroni, Onion, Tomato puree",Beef,Dinner
+Roast Chicken dinner,No,"Carrots, Frozen Peas, Potatoes, Whole Chicken",Chicken,Dinner
+Chicken burgers,No,"Burger Buns, Cheese, Chicken Burgers",Chicken,"Dinner, Lunch"
+Sausage and bean hotpot,No,"Bacon, Baked Beans, Borlotti Beans, Chopped Tomatoes, Onion, Pork Sausage, Worcestershire Sauce",Pork,Dinner
+Beef burgers,No,"Beef burgers, Burger Buns, Cheese",Beef,"Dinner, Lunch"
+Hot dogs,No,"Hot dog bun, Hot dogs",Pork,"Dinner, Lunch"
+Salmon fillets,No,"Potatoes, Salmon Fillets",Fish,Dinner
+Italian chicken sausage pasta,No,"Chicken Sausages, Pasta, passata with onion and garlic",Chicken,Dinner
+Sunshine rice,No,"Carrots, Chicken Thighs, Fresh Ginger, Frozen Peas, Garlic, Long grain rice, Onion, Peppers, Soy sauce, Spring onions, Sweet Paprika, Sweetcorn, Toasted Sesame Oil",Chicken,Dinner
+Pan fried chicken,No,"Chicken Breast, Potatoes, Vegetable side",Chicken,Dinner
+Kedgeree,No,"Basmati Rice, Bay leaves, Eggs, Frozen Peas, Mild curry powder, Onion, Smoked Haddock",Fish,"Breakfast, Dinner, Lunch"
+Mac n cheese,No,"Bacon, Cheese, Macaroni, Tomatoes, White Sauce",Cheese,Dinner
+Fish finger butties,No,"Bread, Fish fingers",Fish,"Dinner, Lunch"
+Vietnamese Caramelised Pork Mince,No,"Chilli, Fish Sauce, Fresh Ginger, Garlic, Maple Syrup, Onion, Pork mince, Spring onions",Pork,Dinner
+Southern Fried Chicken,No,Chicken Breast,Chicken,Dinner
+Gammon steaks,No,Gammon steaks,Bacon,Dinner
+Chicken Teriyaki stir fry,No,"Beansprouts, Chicken Breast, Egg noodles, Mushrooms, Peppers, Teriyaki sauce",Chicken,Dinner
+Chilli,Yes,"Basmati Rice, Beef Mince, Chopped Tomatoes, Kidney Beans, Mild Chilli Powder, Onion, Peppers, Soured Cream",Beef,Dinner
+Lasagne,No,"Bechemal Sauce, Beef Mince, Cheese, Chopped Tomatoes, Garlic, Italian Herbs, Lasagne Sheets, Onion, Tomato puree",Beef,Dinner
+Quiche,No,"Quiche, Vegetable side",Egg,"Dinner, Lunch"
+Frikadeller,Yes,"Beef Mince, Eggs, Plain Flour, Pork mince","Beef, Pork","Dinner, Lunch"
+Full Breakfast,No,"Bacon, Baked Beans, Eggs, Mushrooms, Potato Scones, Square Sausage, Tomatoes","Bacon, Pork","Breakfast, Dinner"
+Nandos Chicken,No,"Baby Sweetcorn, Chicken Breast, Golden Vegetable RIce, Nandos Chicken Kit",Chicken,Dinner
+Breakfast burritos,No,"Baked Beans, Eggs, Onion, Peppers, Sausage Meat, Tortillas",Pork,"Breakfast, Dinner"
+Chicken Korma,No,"Basmati Rice, Chicken Breast, Korma Sauce, Vegetable side",Chicken,Dinner
+Sweet and Sour Chicken,No,"Basmati Rice, Chicken Breast, Onion, Peppers, Sweet and sour sauce",Chicken,Dinner
+One Pan Spanish Chicken,No,"Chicken Breast, Frozen Peas, Guacamole, One Pan seasoning, Onion, Paella Rice, Peppers, Soured Cream, chicken stock",Chicken,Dinner
+Broccoli and Bacon pasta,No,"Bacon, Broccoli, Cherry tomatoes, Garlic, Onion, Pasta",Bacon,Dinner
+The other carluccio pasta,No,,,Dinner
+Steak and chips,No,"Mushrooms, Potatoes, Steak, Vegetable side",Beef,Dinner
+Mushroom risotto,No,"Chicken Thighs, Mushrooms, Risotto rice, chicken stock, fresh thyme",Chicken,Dinner
+Chicken and leek risotto,No,"Chicken Breast, Leek, Parmesan Cheese, Risotto rice, chicken stock",Chicken,Dinner
+Sloppy Joe peppers,No,"Beef Mince, Chopped Tomatoes, Peppers",Beef,Dinner
+Sweet and sticky chicken,No,"Balsamic Vinegar, Chicken Thighs, Fresh Ginger, Garlic powder, Maple Syrup, Onion powder, Soy sauce, Tomato puree",Chicken,Dinner
+Cheesy Italian Pasta,No,,Chicken,Dinner
+Steak Frites,No,,Beef,Dinner
+Seafood Cabbage Salad,No,,Fish,Lunch
+"BTS - Bacon, Tomato and Spinach sandwich",No,,,Lunch
+Blueberry Buns,No,,,"Breakfast, Snack"
+Overnight Oats,No,,,Breakfast
+Dijon Pork,Yes,"Dijon mustard, Garlic, Mushrooms, Onion, Pork Tenderloin, Reduced fat cream cheese, chicken stock",Pork,"Dinner, Lunch"
+Creamy Tuscan Chicken,Yes,"Cherry tomatoes, Chicken Breast, Dried Basil, Dried Oregano, Fresh Spinach, Garlic, Onion, Reduced fat cream cheese, chicken stock",Chicken,"Dinner, Lunch"
+Creamy Cajun Chicken Pasta,Yes,"Baby Sweetcorn, Cajun seasoning, Carrots, Cheese, Cherry tomatoes, Chicken Breast, Eggs, Mushrooms, Onion, Paprika, Pasta, Peppers, Quark, Reduced fat cream cheese, Season all, Spring onions, chicken stock",Chicken,"Dinner, Lunch"
+Mushy Pea Curry,Yes,"Baked Beans, Chicken Breast, Chopped Tomatoes, Garlic, Honey, Mild Chilli Powder, Mild curry powder, Mushrooms, Mushy Peas, Onion, chicken stock",Chicken,"Dinner, Lunch"
+Dill cream cheese and smoked salmon bagel,No,"Bagel thin, Cucumber, Fresh Dill, Lemon juice, Reduced fat cream cheese, Smoked Salmon",Fish,"Breakfast, Lunch"
+Chocolate banana muffins,No,"Baking powder, Banana, Cocoa powder, Eggs, Maple Syrup, Plain chocolate chips, Plain wholemeal flour, Vanilla extract",Banana,"Breakfast, Snack"
+Beef and aubergine bake,Yes,"Aubergines, Beef Mince, Chopped Tomatoes with onion and garlic, Eggs, Soft cheese with garlic and herbs",Beef,"Dinner, Lunch"
+Steak and mushrooms,No,"Fresh Rosemary, Green Beans, Mushrooms, Steak, Sweet Potato",Beef,Dinner
+cosy cottage pie,No,"Beef Mince, Beef stock, Leek, Mixed casserole veg, Potatoes",Beef,Dinner
+cajun pork and apple burgers,Yes,"Apple, Baby Sweetcorn, Cajun seasoning, Pork mince, Spring onions",Pork,Dinner
+Mexican Chicken Stew,Yes,"Chicken Thighs, Chopped Tomatoes with onion and garlic, Peppers, Red Onion, Smoked Paprika",Chicken,"Dinner, Lunch"
+King Prawn Jambalaya,No,"Cajun seasoning, Chopped Tomatoes with garlic and herbs, King Prawns, Long grain rice, Peppers",Fish,Dinner
+Loaded Sweet Potato Jackets,No,"Baked Beans, Cherry tomatoes, Feta cheese, Spring onions, Sweet Potato",Cheese,Lunch
+Naked Steak Burrito Bowl,No,"Faijta Seasoning, Kidney Beans in Chilli, Long grain rice, Red Onion, Steak",Beef,Lunch
+One Pot Cheeseburger Pasta,No,"Beef Mince, Cheese, Garlic powder, Mustard Powder, Onion, Onion powder, Paprika, Pasta, Pickles, Tomato puree, Tomatoes, Worcestershire Sauce, chicken stock",Beef,Dinner
+Spanish Breakfast,No,"Bacon, Eggs, Peppers, Potatoes, Sweet Smoked Paprika",Bacon,Breakfast
+Butterflied Chicken with Hammy Rice,No,"Basmati Rice, Canned lean ham, Chicken Breast, Sherry Vinegar, Sugar Snap Peas",Chicken,Dinner
+Spinach Frittata with smoked salmon,No,"Eggs, Fresh Dill, Fresh Spinach, Fromage Frais, Smoked Salmon",Fish,Lunch
+Miso soup with basil pork balls,No,"Fresh Basil, Green Beans, Miso paste, Pork mince, Rice noodles",,Lunch
+Quinoa with chicken and green beans,No,"Cherry tomatoes, Chicken Breast, Chicken stock pot, Green Beans, Quinoa",,Dinner
+Chicken cacciatore pasta,Yes,"Chicken Thighs, Chopped tomatoes with herbs, Fresh Basil, Mushrooms, Small pasta",,"Dinner, Lunch"

@@ -2,9 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ingredientsApi } from '../lib/api'
 import type { Ingredient } from '../types/Ingredient'
 
-export const useRecipes = () => {
+export const useIngredients = () => {
   return useQuery({
-    queryKey: ['recipes'],
+    queryKey: ['ingredients'],
     queryFn: ingredientsApi.getAll,
   })
 }

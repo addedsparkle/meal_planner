@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
+    "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -17,7 +19,9 @@
     "@supabase/supabase-js": "^2.57.2",
     "@tailwindcss/vite": "^4.1.12",
     "@tanstack/react-query": "^5.87.1",
+    "@types/papaparse": "^5.3.16",
     "axios": "^1.11.0",
+    "papaparse": "^5.5.3",
     "react": "^19.1.1",
     "react-aria-components": "^1.12.1",
     "react-dom": "^19.1.1",
@@ -28,18 +32,22 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@types/node": "^24.6.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react-swc": "^4.0.0",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "jsdom": "^27.0.0",
     "lucide-react": "^0.542.0",
     "netlify-cli": "^23.5.0",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vitest": "^3.2.4"
   }
 }
