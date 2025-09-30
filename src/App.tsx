@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AddRecipeForm } from "./components/AddRecipeForm";
-import type { Recipe } from "./types/Recipe";
+import type { RecipeIn } from "./types/Recipe";
 import { RecipeList } from "./components/RecipeList";
 import { GenerateButton } from "./components/GenerateButton";
 import { MealPlan } from "./components/MealPlan";
@@ -53,7 +53,7 @@ function AppContent() {
           <div className="flex-1 flex flex-row justify-between items-end">
             <h2 className="text-2xl text-emerald-800">Recipes</h2>
             <div className="flex gap-2">
-              <FileUploader addRecipes={ (recipes: Recipe[]) => {console.log(recipes);}} />
+              <FileUploader addRecipes={ (recipes: RecipeIn[]) => {console.log(recipes);}} />
               <Button onClick={() => {
                 const url = createRecipeDownloadUrl(recipes)
                 const link = document.createElement('a')

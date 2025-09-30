@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogTrigger, FileTrigger } from "react-aria-components";
-import type { Recipe, RecipeIn } from "../types/Recipe";
+import type { RecipeIn } from "../types/Recipe";
 import { useEffect, useState } from "react";
 import { UploadIcon } from "lucide-react";
 
@@ -11,7 +11,7 @@ import { parseContents } from "../lib/parser";
 export const FileUploader = ({
   addRecipes,
 }: {
-  addRecipes: (recipes: Recipe[]) => void;
+  addRecipes: (recipes: RecipeIn[]) => void;
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState<RecipeIn[]>([]);
