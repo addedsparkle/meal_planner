@@ -6,7 +6,7 @@
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
 
   // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
+   "features": {"ghcr.io/warrenbuckley/codespace-features/sqlite:latest": {}},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [5173, 3000, 8888, 3999],
