@@ -70,7 +70,7 @@ function AppContent() {
               <AddRecipeForm />
             </div>
           </div>
-          <RecipeList recipes={recipes} />
+          <RecipeList />
         </div>
         <div className="bg-white border rounded p-6  border-gray-400 flex flex-col gap-2">
           <div className="flex-1 flex flex-row justify-between items-end">
