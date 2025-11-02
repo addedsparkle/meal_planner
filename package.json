@@ -13,13 +13,7 @@
     "test:ui": "npm run test:ui --prefix frontend",
     "install:frontend": "cd frontend && npm install"
   },
-  "dependencies": {
-    "@netlify/functions": "^4.2.5",
-    "@netlify/vite-plugin": "^2.5.9",
-    "supabase": "^2.39.2"
-  },
   "devDependencies": {
-    "netlify-cli": "^23.5.0",
     "prettier": "^3.6.2"
   }
 }

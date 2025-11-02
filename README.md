@@ -7,7 +7,6 @@ A React-based meal planning application that helps you organize recipes, generat
 This is a monorepo with the following structure:
 
 - **`/frontend`**: React web application (Vite + TypeScript + React)
-- **`/netlify`**: Netlify serverless functions (if applicable)
 
 ## Getting Started
 
@@ -63,8 +62,6 @@ The production build will be output to `frontend/dist`
 - **Styling**: Tailwind CSS v4
 - **UI Components**: React Aria Components
 - **State Management**: React useState + TanStack Query
-- **Backend**: Supabase
-- **Deployment**: Netlify
 
 ## Features
 

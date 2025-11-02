@@ -1,50 +1,59 @@
-import { Cell, Column, ResizableTableContainer, Row, Table, TableBody, TableHeader } from "react-aria-components";
+import {
+  Cell,
+  Column,
+  ResizableTableContainer,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
+} from "react-aria-components";
 
 import { useRecipes } from "../hooks/useRecipes";
 
 export const RecipeList = () => {
-  const {data: loadedRecipes, isLoading, isError} = useRecipes()
+  const { data: loadedRecipes, isLoading, isError } = useRecipes();
 
   if (!isLoading && isError) {
-    return         <div>
-        <p>
-          Error occurred when loading recipes
-        </p>
-        </div>
+    return (
+      <div>
+        <p>Error occurred when loading recipes</p>
+      </div>
+    );
   }
 
-  if (isLoading){
-            <div>
-        <p>
-          Loading recipes
-        </p>
-        </div>
+  if (isLoading) {
+    <div>
+      <p>Loading recipes</p>
+    </div>;
   }
 
   if (!isLoading && loadedRecipes) {
-
     return loadedRecipes.length === 0 ? (
-          <div>
-          <p>
-            No recipes added yet. Click the + button to add your first recipe!
-          </p>
-          </div>
-        ) : (
-          <ResizableTableContainer>
-          <Table aria-label="Recipes" selectionMode="single">
-            <TableHeader>
-      <Column isRowHeader width={200}><span className="column-name text-lg">Name</span></Column>
-    </TableHeader>
-    <TableBody>
-          {loadedRecipes.map((recipe,index) => (
-            <Row key={recipe.id} className={index%2 ? "bg-emerald-50" : "bg-white"}>
-              <Cell className="font-semibold">{recipe.name}</Cell>
+      <div>
+        <p>
+          No recipes added yet. Click the + button to add your first recipe!
+        </p>
+      </div>
+    ) : (
+      <ResizableTableContainer>
+        <Table aria-label="Recipes" selectionMode="single">
+          <TableHeader>
+            <Column isRowHeader width={200}>
+              <span className="column-name text-lg">Name</span>
+            </Column>
+          </TableHeader>
+          <TableBody>
+            {loadedRecipes.map((recipe, index) => (
+              <Row
+                key={recipe.id}
+                className={index % 2 ? "bg-emerald-50" : "bg-white"}
+              >
+                <Cell className="font-semibold">{recipe.name}</Cell>
               </Row>
-          ))}
-        
-    </TableBody>
-  </Table>
-  </ResizableTableContainer>
-        )
-    }
+            ))}
+          </TableBody>
+        </Table>
+      </ResizableTableContainer>
+    );
   }
+};

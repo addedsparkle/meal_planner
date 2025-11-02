@@ -25,11 +25,16 @@ export default tseslint.config([
       },
     },
     rules: {
-      "@typescript-eslint/no-misused-promises": [2, {
-        "checksVoidReturn": {
-          "attributes": false
-        }
-      }]
-    }
+      "@typescript-eslint/no-misused-promises": [
+        2,
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+      // Disabled due to internal rule crash
+      "@typescript-eslint/unified-signatures": "off",
+    },
   },
 ]);

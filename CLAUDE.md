@@ -6,7 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a monorepo with the following structure:
 - **`/frontend`**: React-based web application
-- **`/netlify`**: Netlify serverless functions (if applicable)
 
 ## Development Commands
 
