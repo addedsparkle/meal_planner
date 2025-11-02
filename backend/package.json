@@ -1,0 +1,41 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "This project was bootstrapped with Fastify-CLI.",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/autoload": "^6.0.0",
+    "@fastify/sensible": "^6.0.0",
+    "@libsql/client": "^0.15.15",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "fastify": "^5.0.0",
+    "fastify-cli": "^7.4.0",
+    "fastify-plugin": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "drizzle-kit": "^0.18.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
