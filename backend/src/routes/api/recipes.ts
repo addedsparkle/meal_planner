@@ -39,7 +39,7 @@ const recipesRoute: FastifyPluginAsync = async (fastify) => {
       response: {
         200: {
           description: 'Successful response',
-          $ref: 'recipe#'
+          $ref: 'recipeWithIngredients#'
         },
         404: {
           description: 'Recipe not found',
@@ -52,7 +52,7 @@ const recipesRoute: FastifyPluginAsync = async (fastify) => {
     } as const
   }, async (request, reply) => {
     const dbId = parseInt(request.params.id)
-    const recipe = recipeService.getRecipe(dbId)
+    const recipe = await recipeService.getRecipe(dbId)
     reply.code(200)
     return recipe
   });

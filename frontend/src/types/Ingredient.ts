@@ -3,5 +3,4 @@ export type Ingredient = {
   name: string;
   category: string | null;
   default_unit: string | null;
-  created_at: string;
 };

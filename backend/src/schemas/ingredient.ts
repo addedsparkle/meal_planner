@@ -16,21 +16,11 @@ export const ingredientSchema = {
       type: 'string',
       description: 'Name of the ingredient'
     },
-    category: {
-      type: ['string', 'null'],
-      description: 'Category of the ingredient (e.g., vegetable, protein, dairy)',
-      nullable: true
-    },
     default_unit: {
       type: ['string', 'null'],
       description: 'Default unit of measurement for the ingredient',
       nullable: true
     },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-      description: 'Timestamp when the ingredient was created'
-    }
   },
   additionalProperties: false
 } as const;

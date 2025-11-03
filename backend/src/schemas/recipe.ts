@@ -46,6 +46,83 @@ export const recipeSchema = {
 } as const;
 
 /**
+ * JSON Schema for Recipe with Ingredients
+ * Represents a recipe with full ingredient details
+ */
+export const recipeWithIngredientsSchema = {
+  $id: 'recipeWithIngredients',
+  type: 'object',
+  required: ['id', 'name', 'ingredients'],
+  properties: {
+    id: {
+      type: 'string',
+      description: 'Unique identifier for the recipe'
+    },
+    name: {
+      type: 'string',
+      description: 'Name of the recipe'
+    },
+    instructions: {
+      type: 'string',
+      description: 'Instructions',
+      nullable: true
+    },
+    mainProtein: {
+      type: 'string',
+      description: 'Primary protein of the recipe',
+      nullable: true
+    },
+    meal: {
+      type: 'string',
+      description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      nullable: true
+    },
+    canBatch: {
+      type: 'boolean',
+      description: 'Whether the recipe can be made in batches',
+      nullable: true
+    },
+    lastUsed: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Timestamp when the recipe was created'
+    },
+    ingredients: {
+      type: 'array',
+      description: 'List of ingredients for the recipe',
+      items: {
+        type: 'object',
+        required: ['id', 'name', 'amount', 'unit'],
+        properties: {
+          id: {
+            type: 'number',
+            description: 'Ingredient ID'
+          },
+          name: {
+            type: 'string',
+            description: 'Ingredient name'
+          },
+          defaultUnit: {
+            type: 'string',
+            description: 'Default unit for the ingredient',
+            nullable: true
+          },
+          amount: {
+            type: 'number',
+            description: 'Amount needed for this recipe'
+          },
+          unit: {
+            type: 'string',
+            description: 'Unit of measurement for this recipe'
+          }
+        }
+      }
+    }
+  },
+  additionalProperties: false
+} as const;
+
+/**
  * JSON Schema for RecipeIn type (Recipe without id)
  * Used for creating new recipes
  */
