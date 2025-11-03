@@ -102,11 +102,6 @@ export const recipeWithIngredientsSchema = {
             type: 'string',
             description: 'Ingredient name'
           },
-          defaultUnit: {
-            type: 'string',
-            description: 'Default unit for the ingredient',
-            nullable: true
-          },
           amount: {
             type: 'number',
             description: 'Amount needed for this recipe'

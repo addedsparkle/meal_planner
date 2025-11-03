@@ -16,11 +16,42 @@ export const ingredientSchema = {
       type: 'string',
       description: 'Name of the ingredient'
     },
-    default_unit: {
-      type: ['string', 'null'],
-      description: 'Default unit of measurement for the ingredient',
-      nullable: true
+  },
+  additionalProperties: false
+} as const;
+
+
+export const ingredientWithRecipesSchema = {
+  $id: 'ingredient',
+  type: 'object',
+  required: ['id', 'name', 'created_at'],
+  properties: {
+    id: {
+      type: 'string',
+      description: 'Unique identifier for the ingredient'
     },
+    name: {
+      type: 'string',
+      description: 'Name of the ingredient'
+    },
+    recipes: {
+      type: 'array',
+      description: 'List of recipes that use this ingredient',
+      items: {
+        type: 'object',
+        required: ['id', 'name'],
+        properties: {
+          id: {
+            type: 'number',
+            description: 'Recipe ID'
+          },
+          name: {
+            type: 'string',
+            description: 'Recipe name'
+          },
+        }
+      }
+    }
   },
   additionalProperties: false
 } as const;

@@ -21,7 +21,6 @@ export const recipesRelations = relations(recipes, ({ many }) => ({
 export const ingredients = sqliteTable("ingredients", {
   id: integer().primaryKey({autoIncrement: true}),
   name: text().notNull(),
-  defaultUnit: text().notNull(),
 }, (t) => [
   unique('ingredient_name_unique').on(t.id, t.name)
 ])
@@ -39,7 +38,7 @@ export const recipesToIngredients = sqliteTable(
     ingredientId: integer('ingredient_id')
       .notNull()
       .references(() => ingredients.id),
-    unit: text().notNull(),
+    unit: text({enum: ["g", "ml", "pieces", "cup", "tbsp", "tsp"]}),
     amount: integer().notNull(),
   },
   (t) => [

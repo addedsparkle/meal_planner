@@ -20,7 +20,6 @@ const recipesRoute: FastifyPluginAsync = async (fastify) => {
       }
     } as const
   }, async (request, reply) => {
-    // TODO: Implement database query
     const recipes = await recipeService.getAllRecipes();
     reply.code(200)
     return recipes;
@@ -141,6 +140,144 @@ const recipesRoute: FastifyPluginAsync = async (fastify) => {
     request.log.info(`Deleting recipe with id ${dbId}`)
     await recipeService.deleteRecipe(dbId)
     reply.code(204);
+  });
+
+  // POST /api/recipes/:id/ingredients - Add ingredient to recipe
+  fastify.post<{
+    Params: { id: string };
+    Body: { name: string; amount: number; unit: string };
+  }>('/:id/ingredients', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        },
+        required: ['id']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Ingredient name' },
+          amount: { type: 'number', description: 'Quantity needed' },
+          unit: {
+            type: 'string',
+            enum: ['g', 'ml', 'pieces', 'cup', 'tbsp', 'tsp'],
+            description: 'Unit of measurement'
+          }
+        },
+        required: ['name', 'amount', 'unit']
+      },
+      response: {
+        201: {
+          description: 'Ingredient added successfully',
+          type: 'object',
+          properties: {
+            recipeId: { type: 'number' },
+            ingredientId: { type: 'number' },
+            amount: { type: 'number' },
+            unit: { type: 'string' }
+          }
+        }
+      }
+    } as const
+  }, async (request, reply) => {
+    const recipeId = parseInt(request.params.id);
+    const { name, amount, unit } = request.body;
+
+    const result = await recipeService.addIngredientToRecipe(
+      recipeId,
+      name,
+      unit as any,
+      amount
+    );
+
+    reply.code(201);
+    return result;
+  });
+
+  // DELETE /api/recipes/:id/ingredients/:ingredientId - Remove ingredient from recipe
+  fastify.delete<{
+    Params: { id: string; ingredientId: string };
+  }>('/:id/ingredients/:ingredientId', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Recipe ID' },
+          ingredientId: { type: 'string', description: 'Ingredient ID' }
+        },
+        required: ['id', 'ingredientId']
+      },
+      response: {
+        204: {
+          description: 'Ingredient removed successfully',
+          type: 'null'
+        }
+      }
+    } as const
+  }, async (request, reply) => {
+    const recipeId = parseInt(request.params.id);
+    const ingredientId = parseInt(request.params.ingredientId);
+
+    await recipeService.removeIngredientFromRecipe(recipeId, ingredientId);
+
+    reply.code(204);
+  });
+
+  // PUT /api/recipes/:id/ingredients/:ingredientId - Update ingredient amount/unit
+  fastify.put<{
+    Params: { id: string; ingredientId: string };
+    Body: { amount: number; unit: string };
+  }>('/:id/ingredients/:ingredientId', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Recipe ID' },
+          ingredientId: { type: 'string', description: 'Ingredient ID' }
+        },
+        required: ['id', 'ingredientId']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          amount: { type: 'number', description: 'New quantity' },
+          unit: {
+            type: 'string',
+            enum: ['g', 'ml', 'pieces', 'cup', 'tbsp', 'tsp'],
+            description: 'New unit of measurement'
+          }
+        },
+        required: ['amount', 'unit']
+      },
+      response: {
+        200: {
+          description: 'Ingredient updated successfully',
+          type: 'object',
+          properties: {
+            recipeId: { type: 'number' },
+            ingredientId: { type: 'number' },
+            amount: { type: 'number' },
+            unit: { type: 'string' }
+          }
+        }
+      }
+    } as const
+  }, async (request, reply) => {
+    const recipeId = parseInt(request.params.id);
+    const ingredientId = parseInt(request.params.ingredientId);
+    const { amount, unit } = request.body;
+
+    const result = await recipeService.updateRecipeIngredient(
+      recipeId,
+      ingredientId,
+      amount,
+      unit as any
+    );
+
+    reply.code(200);
+    return result;
   });
 };
 
