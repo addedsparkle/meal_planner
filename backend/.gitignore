@@ -57,3 +57,5 @@ profile*
 *clinic*
 *flamegraph*
 dist/
+
+local.db
