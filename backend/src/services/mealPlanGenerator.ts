@@ -1,0 +1,147 @@
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
+import RecipeService from './recipes.js';
+import MealPlanService from './mealPlans.js';
+
+type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+type MealType = "Breakfast" | "Lunch" | "Dinner" | "Snack";
+
+interface GenerateMealPlanOptions {
+    name: string;
+    startDate: Date;
+    endDate?: Date;
+    days?: Day[];
+    mealsPerDay?: number;
+    filterByMealType?: boolean;
+}
+
+class MealPlanGenerator {
+    private recipeService: RecipeService;
+    private mealPlanService: MealPlanService;
+
+    constructor(db: LibSQLDatabase) {
+        this.recipeService = new RecipeService(db);
+        this.mealPlanService = new MealPlanService(db);
+    }
+
+    /**
+     * Generates a meal plan by randomly assigning recipes to days
+     *
+     * @param options - Configuration for meal plan generation
+     * @returns The created meal plan with assigned recipes
+     */
+    async generateMealPlan(options: GenerateMealPlanOptions) {
+        const {
+            name,
+            startDate,
+            endDate,
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            mealsPerDay = 3,
+            filterByMealType = false,
+        } = options;
+
+        // Get all available recipes
+        const allRecipes = await this.recipeService.getAllRecipes();
+
+        if (allRecipes.length === 0) {
+            throw new Error('No recipes available to generate meal plan');
+        }
+
+        // Create the meal plan
+        const mealPlan = await this.mealPlanService.createMealPlan({
+            name,
+            startDate,
+            endDate,
+        });
+
+        // Define meal types to use
+        const mealTypes: MealType[] = ["Breakfast", "Lunch", "Dinner"];
+
+        // Assign random recipes to each day
+        for (const day of days) {
+            const recipesToAdd: Array<{ recipeId: number; mealType?: MealType }> = [];
+
+            for (let i = 0; i < mealsPerDay && i < mealTypes.length; i++) {
+                const mealType = mealTypes[i];
+
+                // Filter recipes by meal type if enabled
+                let availableRecipes = allRecipes;
+                if (filterByMealType) {
+                    availableRecipes = allRecipes.filter(
+                        recipe => recipe.meal === mealType || recipe.meal === null
+                    );
+                }
+
+                // If no recipes match the meal type, fall back to all recipes
+                if (availableRecipes.length === 0) {
+                    availableRecipes = allRecipes;
+                }
+
+                // Pick a random recipe
+                const randomIndex = Math.floor(Math.random() * availableRecipes.length);
+                const selectedRecipe = availableRecipes[randomIndex]!;
+
+                recipesToAdd.push({
+                    recipeId: selectedRecipe.id,
+                    mealType,
+                });
+            }
+
+            // Add all recipes for this day
+            await this.mealPlanService.updateDay(mealPlan.id, day, recipesToAdd);
+        }
+
+        // Return the complete meal plan
+        return this.mealPlanService.getMealPlan(mealPlan.id);
+    }
+
+    /**
+     * Regenerates a single day in an existing meal plan
+     *
+     * @param planId - The ID of the meal plan
+     * @param day - The day to regenerate
+     * @param mealsPerDay - Number of meals to generate for the day
+     * @param filterByMealType - Whether to filter recipes by meal type
+     */
+    async regenerateDay(
+        planId: number,
+        day: Day,
+        mealsPerDay: number = 3,
+        filterByMealType: boolean = false
+    ) {
+        const allRecipes = await this.recipeService.getAllRecipes();
+
+        if (allRecipes.length === 0) {
+            throw new Error('No recipes available to regenerate day');
+        }
+
+        const mealTypes: MealType[] = ["Breakfast", "Lunch", "Dinner"];
+        const recipesToAdd: Array<{ recipeId: number; mealType?: MealType }> = [];
+
+        for (let i = 0; i < mealsPerDay && i < mealTypes.length; i++) {
+            const mealType = mealTypes[i];
+
+            let availableRecipes = allRecipes;
+            if (filterByMealType) {
+                availableRecipes = allRecipes.filter(
+                    recipe => recipe.meal === mealType || recipe.meal === null
+                );
+            }
+
+            if (availableRecipes.length === 0) {
+                availableRecipes = allRecipes;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableRecipes.length);
+            const selectedRecipe = availableRecipes[randomIndex]!;
+
+            recipesToAdd.push({
+                recipeId: selectedRecipe.id,
+                mealType,
+            });
+        }
+
+        return this.mealPlanService.updateDay(planId, day, recipesToAdd);
+    }
+}
+
+export default MealPlanGenerator;
