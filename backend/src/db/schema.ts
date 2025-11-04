@@ -16,6 +16,7 @@ export const recipes = sqliteTable("recipes", {
 
 export const recipesRelations = relations(recipes, ({ many }) => ({
   recipesToIngredients: many(recipesToIngredients),
+  mealPlansToRecipes: many(mealPlansToRecipes),
 }));
 
 export const ingredients = sqliteTable("ingredients", {
@@ -54,5 +55,51 @@ export const recipesToIngredientsRelations = relations(recipesToIngredients, ({ 
   ingredients: one(ingredients, {
     fields: [recipesToIngredients.ingredientId],
     references: [ingredients.id],
+  }),
+}));
+
+// Meal Plans table
+export const mealPlans = sqliteTable("meal_plans", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  startDate: integer({ mode: 'timestamp' }).notNull(),
+  endDate: integer({ mode: 'timestamp' }),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+});
+
+export const mealPlansRelations = relations(mealPlans, ({ many }) => ({
+  mealPlansToRecipes: many(mealPlansToRecipes),
+}));
+
+// Junction table between meal plans and recipes with day information
+export const mealPlansToRecipes = sqliteTable(
+  'meal_plans_to_recipes',
+  {
+    planId: integer('plan_id')
+      .notNull()
+      .references(() => mealPlans.id, { onDelete: 'cascade' }),
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipes.id),
+    day: text({
+      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    }).notNull(),
+    mealType: text('meal_type', {
+      enum: ["Breakfast", "Lunch", "Dinner", "Snack"]
+    }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.planId, t.recipeId, t.day] })
+  ],
+);
+
+export const mealPlansToRecipesRelations = relations(mealPlansToRecipes, ({ one }) => ({
+  mealPlan: one(mealPlans, {
+    fields: [mealPlansToRecipes.planId],
+    references: [mealPlans.id],
+  }),
+  recipe: one(recipes, {
+    fields: [mealPlansToRecipes.recipeId],
+    references: [recipes.id],
   }),
 }));
