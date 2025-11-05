@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert'
-import { build } from '../../helper'
+import { build } from '../../helper.ts'
 
 test('GET /api/meal-plans - get all meal plans', async (t) => {
   const app = await build(t)

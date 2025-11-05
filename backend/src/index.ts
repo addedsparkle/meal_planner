@@ -1,17 +1,17 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import { registerSchemas } from './schemas/index.js';
+import { registerSchemas } from './schemas/index.ts';
 
 // Import plugins
-import sensiblePlugin from './plugins/sensible.js';
-import supportPlugin from './plugins/support.js';
-import dbPlugin from './plugins/db.js';
-import servicesPlugin from './plugins/services.js';
+import sensiblePlugin from './plugins/sensible.ts';
+import supportPlugin from './plugins/support.ts';
+import dbPlugin from './plugins/db.ts';
+import servicesPlugin from './plugins/services.ts';
 
 // Import routes
-import rootRoute from './routes/root.js';
-import recipesRoute from './routes/api/recipes.js';
-import weekPlansRoute from './routes/api/meal-plans.js';
+import rootRoute from './routes/root.ts';
+import recipesRoute from './routes/api/recipes.ts';
+import weekPlansRoute from './routes/api/meal-plans.ts';
 
 const fastify = Fastify({
   logger: true,

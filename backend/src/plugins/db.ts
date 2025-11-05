@@ -1,7 +1,7 @@
 import fp from 'fastify-plugin';
 import type { FastifyPluginAsync } from 'fastify';
-import { db } from '../db/index.js';
-import '../types/fastify.js';
+import { db } from '../db/index.ts';
+import '../types/fastify.ts';
 
 /**
  * This plugin adds the database instance to Fastify

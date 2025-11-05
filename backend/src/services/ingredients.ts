@@ -1,5 +1,5 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { recipesToIngredients, ingredients, recipes } from '../db/schema.js';
+import { recipesToIngredients, ingredients, recipes } from '../db/schema.ts';
 import { eq } from 'drizzle-orm';
 
 type Ingredient = typeof ingredients.$inferSelect;

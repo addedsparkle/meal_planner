@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import { registerSchemas } from '../src/schemas/index.js';
-import sensiblePlugin from '../src/plugins/sensible.js';
-import supportPlugin from '../src/plugins/support.js';
-import dbPlugin from '../src/plugins/db.js';
-import servicesPlugin from '../src/plugins/services.js';
-import recipesRoute from '../src/routes/api/recipes.js';
-import mealPlansRoute from '../src/routes/api/meal-plans.js';
+import { registerSchemas } from '../src/schemas/index.ts';
+import sensiblePlugin from '../src/plugins/sensible.ts';
+import supportPlugin from '../src/plugins/support.ts';
+import dbPlugin from '../src/plugins/db.ts';
+import servicesPlugin from '../src/plugins/services.ts';
+import recipesRoute from '../src/routes/api/recipes.ts';
+import mealPlansRoute from '../src/routes/api/meal-plans.ts';
 
 // Build app for testing
 export async function build(t?: any) {

@@ -4,10 +4,10 @@
  */
 
 import type { FastifyInstance } from 'fastify';
-import { daySchema } from './day.js';
-import { recipeSchema, recipeInSchema, recipeWithIngredientsSchema } from './recipe.js';
-import { ingredientSchema } from './ingredient.js';
-import { dayPlanSchema, mealPlanSchema } from './mealPlan.js';
+import { daySchema } from './day.ts';
+import { recipeSchema, recipeInSchema, recipeWithIngredientsSchema } from './recipe.ts';
+import { ingredientSchema } from './ingredient.ts';
+import { dayPlanSchema, mealPlanSchema } from './mealPlan.ts';
 
 /**
  * Register all schemas with a Fastify instance

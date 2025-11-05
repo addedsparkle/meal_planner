@@ -1,6 +1,6 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import RecipeService from './recipes.js';
-import MealPlanService from './mealPlans.js';
+import RecipeService from './recipes.ts';
+import MealPlanService from './mealPlans.ts';
 import { NONAME } from 'dns';
 
 type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";

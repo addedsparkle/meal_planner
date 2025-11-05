@@ -1,10 +1,10 @@
 import fp from 'fastify-plugin';
 import type { FastifyPluginAsync } from 'fastify';
-import RecipeService from '../services/recipes.js';
-import '../types/fastify.js';
-import IngredientService from '../services/ingredients.js';
-import MealPlanService from '../services/mealPlans.js';
-import MealPlanGenerator from '../services/mealPlanGenerator.js';
+import RecipeService from '../services/recipes.ts';
+import '../types/fastify.ts';
+import IngredientService from '../services/ingredients.ts';
+import MealPlanService from '../services/mealPlans.ts';
+import MealPlanGenerator from '../services/mealPlanGenerator.ts';
 
 /**
  * This plugin instantiates and decorates Fastify with service instances
