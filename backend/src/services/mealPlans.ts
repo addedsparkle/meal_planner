@@ -58,7 +58,7 @@ class MealPlanService {
             .select()
             .from(mealPlansToRecipes)
             .where(eq(mealPlansToRecipes.planId, planId));
-
+        
         return {
             ...plan[0],
             recipes: planRecipes,

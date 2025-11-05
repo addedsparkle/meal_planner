@@ -17,6 +17,7 @@ export const recipes = sqliteTable("recipes", {
 export const recipesRelations = relations(recipes, ({ many }) => ({
   recipesToIngredients: many(recipesToIngredients),
   mealPlansToRecipes: many(mealPlansToRecipes),
+  mealPlansSnack: many(mealPlans),
 }));
 
 export const ingredients = sqliteTable("ingredients", {
@@ -64,11 +65,17 @@ export const mealPlans = sqliteTable("meal_plans", {
   name: text().notNull(),
   startDate: integer({ mode: 'timestamp' }).notNull(),
   endDate: integer({ mode: 'timestamp' }),
+  snack: integer()
+      .references(() => recipes.id),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
-export const mealPlansRelations = relations(mealPlans, ({ many }) => ({
+export const mealPlansRelations = relations(mealPlans, ({ many, one }) => ({
   mealPlansToRecipes: many(mealPlansToRecipes),
+  snackRecipe: one(recipes, {
+    fields: [mealPlans.snack],
+    references: [recipes.id],
+  }),
 }));
 
 // Junction table between meal plans and recipes with day information

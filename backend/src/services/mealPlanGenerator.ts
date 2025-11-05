@@ -1,6 +1,7 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import RecipeService from './recipes.js';
 import MealPlanService from './mealPlans.js';
+import { NONAME } from 'dns';
 
 type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 type MealType = "Breakfast" | "Lunch" | "Dinner" | "Snack";
@@ -46,11 +47,24 @@ class MealPlanGenerator {
             throw new Error('No recipes available to generate meal plan');
         }
 
+        const availableSnacks = allRecipes.filter(
+            recipe => recipe.meal === "Snack" 
+        );
+
+        let snack: number | null = null;
+
+        if (availableSnacks.length > 0){
+            const randomIndex = Math.floor(Math.random() * availableSnacks.length);
+            const selectedSnack = availableSnacks[randomIndex]!;
+            snack = selectedSnack.id
+        }
+
         // Create the meal plan
         const mealPlan = await this.mealPlanService.createMealPlan({
             name,
             startDate,
             endDate,
+            snack,
         });
 
         // Define meal types to use

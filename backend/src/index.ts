@@ -11,7 +11,7 @@ import servicesPlugin from './plugins/services.js';
 // Import routes
 import rootRoute from './routes/root.js';
 import recipesRoute from './routes/api/recipes.js';
-import weekPlansRoute from './routes/api/week-plans.js';
+import weekPlansRoute from './routes/api/meal-plans.js';
 
 const fastify = Fastify({
   logger: true,
