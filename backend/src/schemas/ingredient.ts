@@ -23,7 +23,7 @@ export const ingredientSchema = {
 export const ingredientInSchema = {
   $id: 'ingredientIn',
   type: 'object',
-  required: ['id', 'name'],
+  required: ['name'],
   properties: {
     name: {
       type: 'string',
@@ -35,7 +35,7 @@ export const ingredientInSchema = {
 
 
 export const ingredientWithRecipesSchema = {
-  $id: 'ingredient',
+  $id: 'ingredientWithRecipes',
   type: 'object',
   required: ['id', 'name'],
   properties: {

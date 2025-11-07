@@ -6,7 +6,7 @@
 import type { FastifyInstance } from 'fastify';
 import { daySchema } from './day.ts';
 import { recipeSchema, recipeInSchema, recipeWithIngredientsSchema } from './recipe.ts';
-import { ingredientSchema } from './ingredient.ts';
+import { ingredientSchema, ingredientWithRecipesSchema } from './ingredient.ts';
 import { dayPlanSchema, mealPlanSchema } from './mealPlan.ts';
 
 /**
@@ -20,6 +20,7 @@ export function registerSchemas(fastify: FastifyInstance) {
   fastify.addSchema(recipeInSchema);
   fastify.addSchema(recipeWithIngredientsSchema);
   fastify.addSchema(ingredientSchema);
+  fastify.addSchema(ingredientWithRecipesSchema);
 
   // Register schemas that reference other schemas
   fastify.addSchema(dayPlanSchema);
@@ -32,6 +33,7 @@ export {
   recipeInSchema,
   recipeWithIngredientsSchema,
   ingredientSchema,
+  ingredientWithRecipesSchema,
   dayPlanSchema,
   mealPlanSchema,
 };

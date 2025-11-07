@@ -7,6 +7,7 @@ import dbPlugin from '../src/plugins/db.ts';
 import servicesPlugin from '../src/plugins/services.ts';
 import recipesRoute from '../src/routes/api/recipes.ts';
 import mealPlansRoute from '../src/routes/api/meal-plans.ts';
+import ingredientsRoute from '../src/routes/api/ingredients.ts';
 
 // Build app for testing
 export async function build(t?: any) {
@@ -27,6 +28,7 @@ export async function build(t?: any) {
     // Register routes
     await fastify.register(recipesRoute, { prefix: '/api/recipes' });
     await fastify.register(mealPlansRoute, { prefix: '/api/meal-plans' });
+    await fastify.register(ingredientsRoute, { prefix: '/api/ingredients' });
 
     // Close the app after we are done
     if (t && t.after) {

@@ -52,6 +52,15 @@ class IngredientService {
         };
     }
 
+    async updateIngredient(id: number, data: Partial<IngredientInsert>): Promise<Ingredient | undefined> {
+        const result = await this.db
+            .update(ingredients)
+            .set(data)
+            .where(eq(ingredients.id, id))
+            .returning();
+        return result[0];
+    }
+
     async deleteIngredient(id: number): Promise<void> {
         await this.db.delete(ingredients).where(eq(ingredients.id, id));
     }

@@ -12,6 +12,7 @@ import servicesPlugin from './plugins/services.ts';
 import rootRoute from './routes/root.ts';
 import recipesRoute from './routes/api/recipes.ts';
 import weekPlansRoute from './routes/api/meal-plans.ts';
+import ingredientsRoute from './routes/api/ingredients.ts';
 
 const fastify = Fastify({
   logger: true,
@@ -31,7 +32,8 @@ const start = async () => {
     // Register routes
     await fastify.register(rootRoute);
     await fastify.register(recipesRoute, { prefix: '/api/recipes' });
-    await fastify.register(weekPlansRoute, { prefix: '/api/week-plans' });
+    await fastify.register(weekPlansRoute, { prefix: '/api/meal-plans' });
+    await fastify.register(ingredientsRoute, { prefix: '/api/ingredients' });
 
     const port = parseInt(process.env.PORT || '3000', 10);
     const host = process.env.HOST || '0.0.0.0';

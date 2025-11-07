@@ -41,6 +41,7 @@ export const AddRecipeForm = () => {
       const recipeData = {
         name: data.name,
         instructions: data.instructions ?? null,
+        canBatch: false,
       };
       mutate(recipeData);
       reset();
@@ -125,6 +126,7 @@ export const AddRecipeForm = () => {
                   slot="close"
                   type="button"
                   className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                  onClick={() => {setIsOpen(false)}}
                 >
                   Cancel
                 </Button>
