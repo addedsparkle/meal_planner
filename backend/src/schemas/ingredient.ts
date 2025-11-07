@@ -6,12 +6,25 @@
 export const ingredientSchema = {
   $id: 'ingredient',
   type: 'object',
-  required: ['id', 'name', 'created_at'],
+  required: ['id', 'name'],
   properties: {
     id: {
-      type: 'string',
+      type: 'number',
       description: 'Unique identifier for the ingredient'
     },
+    name: {
+      type: 'string',
+      description: 'Name of the ingredient'
+    },
+  },
+  additionalProperties: false
+} as const;
+
+export const ingredientInSchema = {
+  $id: 'ingredientIn',
+  type: 'object',
+  required: ['id', 'name'],
+  properties: {
     name: {
       type: 'string',
       description: 'Name of the ingredient'
@@ -24,10 +37,10 @@ export const ingredientSchema = {
 export const ingredientWithRecipesSchema = {
   $id: 'ingredient',
   type: 'object',
-  required: ['id', 'name', 'created_at'],
+  required: ['id', 'name'],
   properties: {
     id: {
-      type: 'string',
+      type: 'number',
       description: 'Unique identifier for the ingredient'
     },
     name: {

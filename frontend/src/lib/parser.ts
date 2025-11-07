@@ -4,8 +4,8 @@ import type { RecipeIn } from "../types/Recipe";
 interface CSVRow {
   Name: string;
   Ingredients: string;
-  "Main Ingredient": string;
-  Meal: string;
+  "Main Ingredient": RecipeIn["mainProtein"];
+  Meal: RecipeIn["meal"];
   "Can batch": string;
 }
 
@@ -20,14 +20,14 @@ export async function parseContents(file: File): Promise<RecipeIn[]> {
         results.data.forEach((row) => {
           importedRecipes.push({
             name: row.Name || "",
-            ingredients: row.Ingredients || "",
-            main_ingredient: row["Main Ingredient"] || "",
-            meal: row.Meal || "",
-            can_batch:
+            mainProtein: row["Main Ingredient"] || null,
+            meal: row.Meal || null,
+            canBatch:
               (row["Can batch"] || "").toLowerCase() === "yes" ||
               (row["Can batch"] || "").toLowerCase() === "true" ||
               (row["Can batch"] || "") === "1",
-            created_at: new Date().toISOString(),
+            instructions: null,
+            ingredients: row["Ingredients"].split(",").map((name) => {return {name, amount: 0, unit: null}})
           });
         });
         resolve(importedRecipes);

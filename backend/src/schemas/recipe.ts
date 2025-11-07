@@ -9,7 +9,7 @@ export const recipeSchema = {
   required: ['id', 'name'],
   properties: {
     id: {
-      type: 'string',
+      type: 'number',
       description: 'Unique identifier for the recipe'
     },
     name: {
@@ -55,7 +55,7 @@ export const recipeWithIngredientsSchema = {
   required: ['id', 'name', 'ingredients'],
   properties: {
     id: {
-      type: 'string',
+      type: 'number',
       description: 'Unique identifier for the recipe'
     },
     name: {

@@ -27,9 +27,10 @@ export const dayPlanSchema = {
 export const mealPlanSchema = {
   $id: 'mealPlan',
   type: 'object',
+  required: ['id', 'name', 'startDate', 'endDate', 'createdAt'],
   properties:{
     id: {
-      type: 'string',
+      type: 'number',
       description: 'Unique identifier for the meal plan'
     },
     name: {
@@ -71,11 +72,8 @@ export const mealPlanInSchema = {
   items: {
     $ref: 'dayPlan#'
   },
+  required: ['name', 'startDate', 'endDate'],
   properties:{
-    id: {
-      type: 'string',
-      description: 'Unique identifier for the meal plan'
-    },
     name: {
       type: 'string',
       description: 'Name of the meal plan'
@@ -90,11 +88,6 @@ export const mealPlanInSchema = {
       format: 'date-time',
       description: 'Timestamp for the end of the meal plan'
     },
-    createdAt: {
-      type: 'string',
-      format: 'date-time',
-      description: 'Timestamp of when the meal plan was created'
-    }, 
   },
   description: 'Array of meal plans for each day of the week'
 } as const;
