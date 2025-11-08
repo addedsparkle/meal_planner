@@ -52,6 +52,11 @@ profile-*
 .vscode
 *code-workspace
 
+# Environment files
+.env
+.env.local
+.env.*.local
+
 # clinic
 profile*
 *clinic*
@@ -59,3 +64,4 @@ profile*
 dist/
 
 local.db
+test.local.db

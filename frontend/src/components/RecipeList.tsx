@@ -38,10 +38,16 @@ export const RecipeList = () => {
       <ResizableTableContainer>
         <Table aria-label="Recipes" selectionMode="single">
           <TableHeader>
-            <Column isRowHeader width={200}>
+            <Column isRowHeader width={400}>
               <span className="column-name text-lg">Name</span>
             </Column>
-          </TableHeader>
+            <Column isRowHeader>
+              <span className="column-name text-lg">Main Protein</span>
+            </Column>
+            <Column isRowHeader>
+              <span className="column-name text-lg">Meal</span>
+            </Column>
+           </TableHeader>
           <TableBody>
             {loadedRecipes.map((recipe, index) => (
               <Row
@@ -49,6 +55,8 @@ export const RecipeList = () => {
                 className={index % 2 ? "bg-emerald-50" : "bg-white"}
               >
                 <Cell className="font-semibold">{recipe.name}</Cell>
+                <Cell className="font-semibold">{recipe.mainProtein}</Cell>
+                <Cell className="font-semibold">{recipe.meal}</Cell>
               </Row>
             ))}
           </TableBody>

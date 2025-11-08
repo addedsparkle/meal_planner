@@ -15,8 +15,6 @@ import type { Day } from "../types/Day";
 
 const API_BASE_URL = "/api";
 
-export type RecipeCreateParams = RecipeIn;
-
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -35,7 +33,17 @@ export const recipesApi = {
     }
   },
 
-  create: async (recipe: RecipeCreateParams): Promise<Recipe> => {
+  getById: async (id: string | number): Promise<Recipe> => {
+    try {
+      const response = await apiClient.get<Recipe>(`/recipes/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching recipe ${id}:`, error);
+      throw error;
+    }
+  },
+
+  create: async (recipe: RecipeIn): Promise<Recipe> => {
     try {
       const response = await apiClient.post<Recipe>("/recipes", recipe);
       return response.data;
@@ -43,6 +51,22 @@ export const recipesApi = {
       if (error instanceof Error) {
         console.error("Error creating recipe:", error.message);
       }
+      throw error;
+    }
+  },
+
+  addIngredient: async (
+    recipeId: string | number,
+    ingredient: { name: string; amount: number; unit: string }
+  ): Promise<{ recipeId: number; ingredientId: number; amount: number; unit: string }> => {
+    try {
+      const response = await apiClient.post<{ recipeId: number; ingredientId: number; amount: number; unit: string }>(
+        `/recipes/${recipeId}/ingredients`,
+        ingredient
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding ingredient to recipe ${recipeId}:`, error);
       throw error;
     }
   },

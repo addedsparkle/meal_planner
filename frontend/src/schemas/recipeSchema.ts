@@ -1,4 +1,6 @@
 import * as yup from "yup";
+import type { Protein, RecipeIngredientIn } from "../types/Ingredient";
+import type { MealType } from "../types/MealPlan";
 
 export const recipeSchema = yup.object({
   name: yup
@@ -16,4 +18,7 @@ export const recipeSchema = yup.object({
 export type RecipeFormData = {
   name: string;
   instructions: string | undefined;
+  mainProtein: Protein | undefined;
+  meals: MealType[] | undefined;
+  ingredients: RecipeIngredientIn[];
 };

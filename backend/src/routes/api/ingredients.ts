@@ -15,7 +15,7 @@ const ingredientsRoute: FastifyPluginAsync = async (fastify) => {
         200: {
           description: 'Successful response',
           type: 'array',
-          items: { $ref: 'recipe#' }
+          items: { $ref: 'ingredient#' }
         }
       }
     } as const
@@ -56,43 +56,8 @@ const ingredientsRoute: FastifyPluginAsync = async (fastify) => {
     return newIngredient;
   });
 
-  // GET /api/ingredient/:id - Get a specific ingredient
-  fastify.get<{ Params: { id: string } }>('/:id', {
-    schema: {
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' }
-        },
-        required: ['id']
-      },
-      response: {
-        200: {
-          description: 'Successful response',
-          $ref: 'ingredient#'
-        },
-        404: {
-          description: 'Ingredient not found',
-          type: 'object',
-          properties: {
-            error: { type: 'string' }
-          }
-        }
-      }
-    } as const
-  }, async (request, reply) => {
-    const dbId = parseInt(request.params.id)
-    const ingredient = await ingredientService.getIngredient(dbId)
-    
-    if (!ingredient) {
-        reply.code(404)
-        return undefined
-    }
-    reply.code(200)
-    return ingredient
-  });
-
   // GET /api/ingredient/:id/recipes - Get recipes that use a specific ingredient
+  // NOTE: This must be registered BEFORE /:id to avoid route conflicts
   fastify.get<{ Params: { id: string } }>('/:id/recipes', {schema: {
       params: {
         type: 'object',
@@ -125,6 +90,44 @@ const ingredientsRoute: FastifyPluginAsync = async (fastify) => {
     }
     reply.code(200)
     return ingredient
+  });
+
+  // GET /api/ingredient/:id - Get a specific ingredient
+  fastify.get<{ Params: { id: string } }>('/:id', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          description: 'Successful response',
+          $ref: 'ingredient#'
+        },
+        404: {
+          description: 'Ingredient not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    } as const
+  }, async (request, reply) => {
+    const dbId = parseInt(request.params.id)
+    const ingredient = await ingredientService.getIngredient(dbId)
+
+    if (!ingredient) {
+        reply.code(404)
+        return {error:`No ingredient with id ${request.params.id} exists`}
+    }
+    else {
+    reply.code(200)
+    return ingredient
+    }
   });
 
   // PUT /api/ingredients/:id - Update an ingredient

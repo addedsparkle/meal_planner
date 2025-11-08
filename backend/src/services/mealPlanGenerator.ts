@@ -48,7 +48,7 @@ class MealPlanGenerator {
         }
 
         const availableSnacks = allRecipes.filter(
-            recipe => recipe.meal === "Snack" 
+            recipe => recipe.meal?.includes("Snack")
         );
 
         let snack: number | null = null;
@@ -81,7 +81,7 @@ class MealPlanGenerator {
                 let availableRecipes = allRecipes;
                 if (filterByMealType) {
                     availableRecipes = allRecipes.filter(
-                        recipe => recipe.meal === mealType || recipe.meal === null
+                        recipe => recipe.meal?.includes(mealType) || recipe.meal === null || recipe.meal?.length === 0
                     );
                 }
 
@@ -137,7 +137,7 @@ class MealPlanGenerator {
             let availableRecipes = allRecipes;
             if (filterByMealType) {
                 availableRecipes = allRecipes.filter(
-                    recipe => recipe.meal === mealType || recipe.meal === null
+                    recipe => recipe.meal?.includes(mealType) || recipe.meal === null || recipe.meal?.length === 0
                 );
             }
 

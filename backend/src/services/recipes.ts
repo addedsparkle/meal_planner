@@ -1,11 +1,13 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { recipes, recipesToIngredients, ingredients } from '../db/schema.ts';
+import { recipes, recipesToIngredients, ingredients, recipesToMealTypes } from '../db/schema.ts';
 import { eq, and } from 'drizzle-orm';
 
 type Recipe = typeof recipes.$inferSelect;
 type RecipeInsert = typeof recipes.$inferInsert;
 type RecipeToIngredientInsert = typeof recipesToIngredients.$inferInsert;
+type RecipeToMealTypeInsert = typeof recipesToMealTypes.$inferInsert;
 type Unit = NonNullable<RecipeToIngredientInsert['unit']>;
+type MealType = NonNullable<RecipeToMealTypeInsert['mealType']>;
 
 class RecipeService {
     private db: LibSQLDatabase;
@@ -14,13 +16,46 @@ class RecipeService {
         this.db = db;
     }
 
-    async addRecipe(recipe: RecipeInsert): Promise<Recipe> {
+    async addRecipe(recipe: RecipeInsert, mealTypes?: MealType[]) {
         const result: Recipe[] = await this.db.insert(recipes).values(recipe).returning();
-        return result[0]!;
+        const newRecipe = result[0]!;
+
+        // If meal types are provided, insert them into the junction table
+        if (mealTypes && mealTypes.length > 0) {
+            await this.db.insert(recipesToMealTypes).values(
+                mealTypes.map(mealType => ({
+                    recipeId: newRecipe.id,
+                    mealType
+                }))
+            );
+        }
+
+        // Return recipe with meal types
+        return {
+            ...newRecipe,
+            meal: mealTypes || []
+        };
     }
 
-    async getAllRecipes(): Promise<Recipe[]> {
-        return this.db.select().from(recipes);
+    async getAllRecipes() {
+        const allRecipes = await this.db.select().from(recipes);
+
+        // Fetch meal types for all recipes
+        const recipesWithMealTypes = await Promise.all(
+            allRecipes.map(async (recipe) => {
+                const mealTypes = await this.db
+                    .select({ mealType: recipesToMealTypes.mealType })
+                    .from(recipesToMealTypes)
+                    .where(eq(recipesToMealTypes.recipeId, recipe.id));
+
+                return {
+                    ...recipe,
+                    meal: mealTypes.map(mt => mt.mealType)
+                };
+            })
+        );
+
+        return recipesWithMealTypes;
     }
 
     async getRecipe(id: number) {
@@ -41,8 +76,14 @@ class RecipeService {
             .innerJoin(ingredients, eq(recipesToIngredients.ingredientId, ingredients.id))
             .where(eq(recipesToIngredients.recipeId, id));
 
+        const mealTypes = await this.db
+            .select({ mealType: recipesToMealTypes.mealType })
+            .from(recipesToMealTypes)
+            .where(eq(recipesToMealTypes.recipeId, id));
+
         return {
             ...recipe[0],
+            meal: mealTypes.map(mt => mt.mealType),
             ingredients: recipeIngredients,
         };
     }

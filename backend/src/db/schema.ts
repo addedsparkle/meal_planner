@@ -5,7 +5,6 @@ export const recipes = sqliteTable("recipes", {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
   mainProtein: text({enum: ["Chicken", "Beef", "Pork", "Bean", "Egg"]}),
-  meal: text({ enum: ["Breakfast", "Lunch", "Dinner", "Snack"] }),
   instructions: text(),
   canBatch: integer({mode: 'boolean'}),
   lastUsed: integer({mode: 'timestamp'}),
@@ -16,6 +15,7 @@ export const recipes = sqliteTable("recipes", {
 
 export const recipesRelations = relations(recipes, ({ many }) => ({
   recipesToIngredients: many(recipesToIngredients),
+  recipesToMealTypes: many(recipesToMealTypes),
   mealPlansToRecipes: many(mealPlansToRecipes),
   mealPlansSnack: many(mealPlans),
 }));
@@ -56,6 +56,29 @@ export const recipesToIngredientsRelations = relations(recipesToIngredients, ({ 
   ingredients: one(ingredients, {
     fields: [recipesToIngredients.ingredientId],
     references: [ingredients.id],
+  }),
+}));
+
+// Junction table for recipes to meal types (many-to-many)
+export const recipesToMealTypes = sqliteTable(
+  'recipes_to_meal_types',
+  {
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    mealType: text('meal_type', {
+      enum: ["Breakfast", "Lunch", "Dinner", "Snack"]
+    }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.recipeId, t.mealType] })
+  ],
+);
+
+export const recipesToMealTypesRelations = relations(recipesToMealTypes, ({ one }) => ({
+  recipe: one(recipes, {
+    fields: [recipesToMealTypes.recipeId],
+    references: [recipes.id],
   }),
 }));
 

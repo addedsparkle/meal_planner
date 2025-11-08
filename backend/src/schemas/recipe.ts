@@ -27,8 +27,11 @@ export const recipeSchema = {
       nullable: true
     },
     meal: {
-      type: 'string',
-      description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      type: 'array',
+      items: {
+        type: 'string',
+        description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      },
       nullable: true
     },
     canBatch: {
@@ -73,8 +76,11 @@ export const recipeWithIngredientsSchema = {
       nullable: true
     },
     meal: {
-      type: 'string',
-      description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      type: 'array',
+      items: {
+        type: 'string',
+        description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      },
       nullable: true
     },
     canBatch: {
@@ -135,19 +141,17 @@ export const recipeInSchema = {
       description: 'Instructions',
       nullable: true
     },
-    ingredients: {
-      type: 'string',
-      description: 'Comma-separated list of ingredients',
-      nullable: true
-    },
     mainProtein: {
       type: 'string',
       description: 'Primary ingredient of the recipe',
       nullable: true
     },
     meal: {
-      type: 'string',
-      description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      type: 'array',
+      items: {
+        type: 'string',
+        description: 'Type of meal (e.g., breakfast, lunch, dinner)',
+      },
       nullable: true
     },
     canBatch: {

@@ -22,7 +22,7 @@ test('POST /api/recipes - create a new recipe', async (t) => {
     url: '/api/recipes',
     payload: {
       name: 'Test Recipe',
-      meal: 'Dinner',
+      meal: ['Dinner'],
       mainProtein: 'Chicken'
     }
   })
@@ -30,7 +30,6 @@ test('POST /api/recipes - create a new recipe', async (t) => {
   assert.equal(res.statusCode, 201)
   const recipe = JSON.parse(res.payload)
   assert.equal(recipe.name, 'Test Recipe')
-  assert.equal(recipe.meal, 'Dinner')
   assert.equal(recipe.mainProtein, 'Chicken')
   assert.ok(recipe.id)
 })
@@ -58,7 +57,7 @@ test('GET /api/recipes/:id - get a specific recipe', async (t) => {
     url: '/api/recipes',
     payload: {
       name: 'Specific Recipe',
-      meal: 'Lunch',
+      meal: ['Lunch', 'Dinner'],
       mainProtein: 'Beef'
     }
   })
@@ -74,7 +73,10 @@ test('GET /api/recipes/:id - get a specific recipe', async (t) => {
   const recipe = JSON.parse(res.payload)
   assert.equal(recipe.id, createdRecipe.id)
   assert.equal(recipe.name, 'Specific Recipe')
-  assert.equal(recipe.meal, 'Lunch')
+  assert.ok(Array.isArray(recipe.meal))
+  assert.equal(recipe.meal.length, 2)
+  assert.ok(recipe.meal.includes('Lunch'))
+  assert.ok(recipe.meal.includes('Dinner'))
   assert.equal(recipe.mainProtein, 'Beef')
 })
 
@@ -100,7 +102,7 @@ test('PUT /api/recipes/:id - update a recipe (not implemented)', async (t) => {
     url: '/api/recipes',
     payload: {
       name: 'Original Recipe',
-      meal: 'Breakfast',
+      meal: ['Breakfast'],
       mainProtein: 'Egg'
     }
   })
@@ -112,7 +114,7 @@ test('PUT /api/recipes/:id - update a recipe (not implemented)', async (t) => {
     url: `/api/recipes/${original.id}`,
     payload: {
       name: 'Updated Recipe',
-      meal: 'Brunch',
+      meal: ['Breakfast', 'Lunch'],
       mainProtein: 'Egg'
     }
   })
@@ -130,7 +132,7 @@ test('DELETE /api/recipes/:id - delete a recipe', async (t) => {
     url: '/api/recipes',
     payload: {
       name: 'To Be Deleted',
-      meal: 'Snack',
+      meal: ['Snack'],
       mainProtein: 'Pork'
     }
   })
@@ -161,7 +163,7 @@ test('POST /api/recipes/:id/ingredients - add ingredient to recipe', async (t) =
     url: '/api/recipes',
     payload: {
       name: 'Pasta Recipe',
-      meal: 'Dinner',
+      meal: ['Dinner'],
       mainProtein: 'None'
     }
   })
@@ -195,7 +197,7 @@ test('POST /api/recipes/:id/ingredients - should fail without required fields', 
     url: '/api/recipes',
     payload: {
       name: 'Test Recipe',
-      meal: 'Dinner',
+      meal: ['Dinner'],
       mainProtein: 'Chicken'
     }
   })
@@ -223,7 +225,7 @@ test('PUT /api/recipes/:id/ingredients/:ingredientId - update ingredient amount/
     url: '/api/recipes',
     payload: {
       name: 'Soup Recipe',
-      meal: 'Lunch',
+      meal: ['Lunch'],
       mainProtein: 'Chicken'
     }
   })
@@ -266,7 +268,7 @@ test('DELETE /api/recipes/:id/ingredients/:ingredientId - remove ingredient from
     url: '/api/recipes',
     payload: {
       name: 'Salad Recipe',
-      meal: 'Lunch',
+      meal: ['Lunch'],
       mainProtein: 'None'
     }
   })
@@ -302,7 +304,7 @@ test('Complete recipe workflow with ingredients', async (t) => {
     url: '/api/recipes',
     payload: {
       name: 'Chicken Stir Fry',
-      meal: 'Dinner',
+      meal: ['Dinner', 'Lunch'],
       mainProtein: 'Chicken'
     }
   })

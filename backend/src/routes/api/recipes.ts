@@ -76,7 +76,8 @@ const recipesRoute: FastifyPluginAsync = async (fastify) => {
     } as const
   }, async (request, reply) => {
     const recipeData = request.body as any;
-    const newRecipe = await recipeService.addRecipe(recipeData);
+    const { meal, ...recipeFields } = recipeData;
+    const newRecipe = await recipeService.addRecipe(recipeFields, meal);
     reply.code(201);
     return newRecipe;
   });

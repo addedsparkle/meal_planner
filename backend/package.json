@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "tsx --test 'test/**/*.test.{ts,mts}'",
+    "test:setup": "npx tsx setup-test-db.ts",
     "build": "tsc",
     "start": "ts-node dist/index.js",
     "dev": "tsx watch src/index.ts",

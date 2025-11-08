@@ -26,7 +26,7 @@ export async function parseContents(file: File): Promise<RecipeIn[]> {
               (row["Can batch"] || "").toLowerCase() === "yes" ||
               (row["Can batch"] || "").toLowerCase() === "true" ||
               (row["Can batch"] || "") === "1",
-            instructions: null,
+            instructions: "TBA",
             ingredients: row["Ingredients"].split(",").map((name) => {return {name, amount: 0, unit: null}})
           });
         });

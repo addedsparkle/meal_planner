@@ -12,6 +12,7 @@ import { createRecipeDownloadUrl } from "./lib/exportRecipes";
 import { Button } from "react-aria-components";
 import { DownloadIcon } from "lucide-react";
 import { useRecipes } from "./hooks/useRecipes";
+import { bulkRecipeProcessor } from "./lib/recipes";
 
 const queryClient = new QueryClient();
 
@@ -58,8 +59,8 @@ function AppContent() {
           <h2 className="text-2xl text-emerald-800">Recipes</h2>
           <div className="flex gap-2">
             <FileUploader
-              addRecipes={(recipes: RecipeIn[]) => {
-                console.log(recipes);
+              addRecipes={async (recipes: RecipeIn[]) => {
+                await bulkRecipeProcessor(recipes)
               }}
             />
             <Button

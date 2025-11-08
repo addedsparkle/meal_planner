@@ -1,4 +1,12 @@
-import 'dotenv/config';
+// Load .env.test before .env for test-specific configuration
+import { config } from 'dotenv';
+import path from 'path';
+
+// Load test environment first if it exists
+config({ path: path.resolve(process.cwd(), '.env.test') });
+// Then load default .env as fallback
+config();
+
 import Fastify from 'fastify';
 import { registerSchemas } from '../src/schemas/index.ts';
 import sensiblePlugin from '../src/plugins/sensible.ts';
