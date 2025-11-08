@@ -49,6 +49,7 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
 
   return (
     <div className="space-y-4">
+      <Label>Ingredients</Label>
       {/* List of added ingredients */}
       {value.length > 0 && (
         <div className="space-y-1">
@@ -78,7 +79,6 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
         </div>
       )}
 
-      {/* Add new ingredient form */}
       <div className="border rounded-md p-4 space-y-3">
         
         <TextField>

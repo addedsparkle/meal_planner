@@ -1,4 +1,4 @@
-import { ChevronDown, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Input,
   TextArea,
@@ -8,33 +8,29 @@ import {
   Label,
   Heading,
   ModalOverlay,
-  Select,
-  SelectValue,
-  Popover,
-  ListBox,
-  ListBoxItem,
 } from "react-aria-components";
-import { Modal } from "./Modal";
+import { FullPageModal } from "./Modal";
 import { type RecipeFormData } from "../schemas/recipeSchema";
 import { useCreateRecipe } from "../hooks/useRecipes";
 import {
   useForm,
   type SubmitHandler,
   type SubmitErrorHandler,
+  Controller,
 } from "react-hook-form";
 import { useState } from "react";
-import { useIngredients } from "../hooks/useIngredients";
+import { IngredientSelect } from "./IngredientSelect";
 
 export const AddRecipeForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutate } = useCreateRecipe();
-  const { data: ingredients } = useIngredients();
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { isSubmitting },
-  } = useForm<RecipeFormData>({});
+  } = useForm<RecipeFormData>({defaultValues:{ingredients:[]}});
 
   const onSubmit: SubmitHandler<RecipeFormData> = (data: RecipeFormData) => {
     try {
@@ -64,11 +60,11 @@ export const AddRecipeForm = () => {
         <PlusIcon />
       </Button>
       <ModalOverlay isDismissable isOpen={isOpen}>
-        <Modal>
-          <Dialog className="p-6 w-full max-w-md">
+        <FullPageModal>
+          <Dialog className="p-6 w-full  max-h-[85dvh] overflow-scroll scroll-smooth">
             <form
               onSubmit={handleSubmit(onSubmit, onError)}
-              className="space-y-4"
+              className="space-y-4 flex flex-col"
             >
               <Heading
                 className="text-xl font-semibold text-emerald-800 mb-4"
@@ -76,6 +72,8 @@ export const AddRecipeForm = () => {
               >
                 Add New Recipe
               </Heading>
+              <div className="flex flex-row gap-2 w-full grow ">
+                <div className="flex flex-col grow ">
               <TextField>
                 <Label>Name</Label>
                 <Input
@@ -86,34 +84,22 @@ export const AddRecipeForm = () => {
                 />
               </TextField>
 
-              <TextField>
+              <TextField className="grow">
                 <Label>Instructions</Label>
                 <TextArea
                   {...register("instructions")}
                   placeholder="Step-by-step cooking instructions"
-                  className="w-full p-2 border rounded h-32 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full p-2 border rounded h-full focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
-              </TextField>
-
-              <Heading>Ingredients</Heading>
-              <Select>
-                <Button>
-                  <SelectValue />
-                  <span aria-hidden="true">
-                    <ChevronDown size={16} />
-                  </span>
-                </Button>
-                <Popover>
-                  <ListBox>
-                    {ingredients &&
-                      ingredients.map((ingredient) => (
-                        <ListBoxItem>{ingredient.name}</ListBoxItem>
-                      ))}
-                    <ListBoxItem>Add New</ListBoxItem>
-                  </ListBox>
-                </Popover>
-              </Select>
-
+              </TextField></div>
+              <div className="flex grow">
+              <Controller
+                control={control}
+                name="ingredients"
+                render={({ field }) => <IngredientSelect {...field} />}
+                />
+                </div>
+              </div>
               <div className="flex gap-2 pt-4">
                 <Button
                   type="submit"
@@ -133,7 +119,7 @@ export const AddRecipeForm = () => {
               </div>
             </form>
           </Dialog>
-        </Modal>
+        </FullPageModal>
       </ModalOverlay>
     </div>
   );
