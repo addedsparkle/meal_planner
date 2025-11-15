@@ -67,7 +67,9 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
                   </span>
                 </div>
                 <Button
-                  onPress={() => {handleRemoveIngredient(index)}}
+                  onPress={() => {
+                    handleRemoveIngredient(index);
+                  }}
                   isDisabled={disabled}
                   className="text-red-600 hover:text-red-800 p-1"
                 >
@@ -80,14 +82,13 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
       )}
 
       <div className="border rounded-md p-4 space-y-3">
-        
         <TextField>
           <Label className="text-xs text-gray-600">Ingredient Name</Label>
           <Input
             value={newIngredient.name}
-            onChange={(e) =>
-              {setNewIngredient({ ...newIngredient, name: e.target.value })}
-            }
+            onChange={(e) => {
+              setNewIngredient({ ...newIngredient, name: e.target.value });
+            }}
             onKeyUp={handleKeyPress}
             placeholder="e.g., Chicken Breast"
             disabled={disabled}
@@ -101,12 +102,12 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
             <Input
               type="number"
               value={newIngredient.amount || ""}
-              onChange={(e) =>
-                {setNewIngredient({
+              onChange={(e) => {
+                setNewIngredient({
                   ...newIngredient,
                   amount: parseFloat(e.target.value) || 0,
-                })}
-              }
+                });
+              }}
               onKeyUp={handleKeyPress}
               placeholder="200"
               disabled={disabled}
@@ -120,9 +121,9 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
             // eslint-disable-next-line @typescript-eslint/no-deprecated
             selectedKey={newIngredient.unit}
             // eslint-disable-next-line @typescript-eslint/no-deprecated
-            onSelectionChange={(key) =>
-              {setNewIngredient({ ...newIngredient, unit: key as Unit })}
-            }
+            onSelectionChange={(key) => {
+              setNewIngredient({ ...newIngredient, unit: key as Unit });
+            }}
             isDisabled={disabled}
           >
             <Label className="text-xs text-gray-600">Unit</Label>
@@ -148,7 +149,9 @@ export const IngredientSelect = ({ value, onChange, disabled }: Props) => {
 
         <Button
           onPress={handleAddIngredient}
-          isDisabled={disabled || !newIngredient.name.trim() || newIngredient.amount <= 0}
+          isDisabled={
+            disabled || !newIngredient.name.trim() || newIngredient.amount <= 0
+          }
           className="w-full bg-emerald-600 text-white py-2 px-4 rounded hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <PlusIcon size={18} />

@@ -47,7 +47,7 @@ export const RecipeList = () => {
             <Column isRowHeader>
               <span className="column-name text-lg">Meal</span>
             </Column>
-           </TableHeader>
+          </TableHeader>
           <TableBody>
             {loadedRecipes.map((recipe, index) => (
               <Row

@@ -60,7 +60,7 @@ function AppContent() {
           <div className="flex gap-2">
             <FileUploader
               addRecipes={async (recipes: RecipeIn[]) => {
-                await bulkRecipeProcessor(recipes)
+                await bulkRecipeProcessor(recipes);
               }}
             />
             <Button

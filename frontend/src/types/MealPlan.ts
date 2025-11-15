@@ -59,7 +59,7 @@ export interface UpdateDayRecipes {
 
 export interface DayPlan {
   day: Day;
-  breakfast?: any;
-  lunch?: any;
-  dinner?: any;
+  breakfast?: MealType;
+  lunch?: MealType;
+  dinner?: MealType;
 }

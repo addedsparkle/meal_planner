@@ -23,6 +23,11 @@ const start = async () => {
     // Register JSON schemas
     registerSchemas(fastify);
 
+    fastify.log.debug("DEBUG level")
+    fastify.log.info("INFO level")
+    fastify.log.warn("WARN level")
+    fastify.log.error("ERROR level")
+
     // Register plugins
     await fastify.register(sensiblePlugin);
     await fastify.register(supportPlugin);

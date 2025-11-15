@@ -17,8 +17,9 @@ export const recipeSchema = yup.object({
 
 export type RecipeFormData = {
   name: string;
-  instructions: string | undefined;
-  mainProtein: Protein | undefined;
-  meals: MealType[] | undefined;
+  instructions?: string;
+  mainProtein?: Protein;
+  meals?: MealType[];
   ingredients: RecipeIngredientIn[];
+  canBatch: boolean;
 };

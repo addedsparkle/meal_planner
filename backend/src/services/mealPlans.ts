@@ -1,6 +1,7 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { mealPlans, mealPlansToRecipes } from '../db/schema.ts';
 import { eq, and } from 'drizzle-orm';
+import { FastifyBaseLogger } from 'fastify';
 
 type MealPlan = typeof mealPlans.$inferSelect;
 type MealPlanInsert = typeof mealPlans.$inferInsert;
@@ -11,9 +12,11 @@ type MealType = NonNullable<MealPlanToRecipeInsert['mealType']>;
 
 class MealPlanService {
     private db: LibSQLDatabase;
+    private logger: FastifyBaseLogger;
 
-    constructor(db: LibSQLDatabase) {
+    constructor(db: LibSQLDatabase, logger: FastifyBaseLogger) {
         this.db = db;
+        this.logger = logger;
     }
 
     /**

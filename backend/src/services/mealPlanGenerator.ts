@@ -2,6 +2,7 @@ import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import RecipeService from './recipes.ts';
 import MealPlanService from './mealPlans.ts';
 import { NONAME } from 'dns';
+import { FastifyBaseLogger } from 'fastify';
 
 type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 type MealType = "Breakfast" | "Lunch" | "Dinner" | "Snack";
@@ -19,9 +20,9 @@ class MealPlanGenerator {
     private recipeService: RecipeService;
     private mealPlanService: MealPlanService;
 
-    constructor(db: LibSQLDatabase) {
-        this.recipeService = new RecipeService(db);
-        this.mealPlanService = new MealPlanService(db);
+    constructor(db: LibSQLDatabase, logger: FastifyBaseLogger) {
+        this.recipeService = new RecipeService(db, logger);
+        this.mealPlanService = new MealPlanService(db, logger);
     }
 
     /**

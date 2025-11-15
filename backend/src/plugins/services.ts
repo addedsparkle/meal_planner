@@ -10,10 +10,10 @@ import MealPlanGenerator from '../services/mealPlanGenerator.ts';
  * This plugin instantiates and decorates Fastify with service instances
  */
 const servicesPlugin: FastifyPluginAsync = async (fastify) => {
-  const recipeService = new RecipeService(fastify.db);
-  const ingredientService = new IngredientService(fastify.db);
-  const mealPlanService = new MealPlanService(fastify.db);
-  const mealPlanGenerator = new MealPlanGenerator(fastify.db);
+  const recipeService = new RecipeService(fastify.db, fastify.log);
+  const ingredientService = new IngredientService(fastify.db, fastify.log);
+  const mealPlanService = new MealPlanService(fastify.db, fastify.log);
+  const mealPlanGenerator = new MealPlanGenerator(fastify.db, fastify.log);
 
   fastify.decorate('recipeService', recipeService);
   fastify.decorate('ingredientService', ingredientService);

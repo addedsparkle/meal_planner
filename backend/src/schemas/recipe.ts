@@ -146,7 +146,7 @@ export const recipeInSchema = {
       description: 'Primary ingredient of the recipe',
       nullable: true
     },
-    meal: {
+    meals: {
       type: 'array',
       items: {
         type: 'string',

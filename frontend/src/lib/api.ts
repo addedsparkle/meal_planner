@@ -45,6 +45,7 @@ export const recipesApi = {
 
   create: async (recipe: RecipeIn): Promise<Recipe> => {
     try {
+      console.log({recipe})
       const response = await apiClient.post<Recipe>("/recipes", recipe);
       return response.data;
     } catch (error: unknown) {
@@ -57,13 +58,20 @@ export const recipesApi = {
 
   addIngredient: async (
     recipeId: string | number,
-    ingredient: { name: string; amount: number; unit: string }
-  ): Promise<{ recipeId: number; ingredientId: number; amount: number; unit: string }> => {
+    ingredient: { name: string; amount: number; unit: string },
+  ): Promise<{
+    recipeId: number;
+    ingredientId: number;
+    amount: number;
+    unit: string;
+  }> => {
     try {
-      const response = await apiClient.post<{ recipeId: number; ingredientId: number; amount: number; unit: string }>(
-        `/recipes/${recipeId}/ingredients`,
-        ingredient
-      );
+      const response = await apiClient.post<{
+        recipeId: number;
+        ingredientId: number;
+        amount: number;
+        unit: string;
+      }>(`/recipes/${recipeId}/ingredients`, ingredient);
       return response.data;
     } catch (error) {
       console.error(`Error adding ingredient to recipe ${recipeId}:`, error);
@@ -144,10 +152,7 @@ export const mealPlansApi = {
    */
   create: async (mealPlan: MealPlanCreate): Promise<MealPlan> => {
     try {
-      const response = await apiClient.post<MealPlan>(
-        "/meal-plans",
-        mealPlan,
-      );
+      const response = await apiClient.post<MealPlan>("/meal-plans", mealPlan);
       return response.data;
     } catch (error) {
       console.error("Error creating meal plan:", error);
@@ -200,10 +205,7 @@ export const mealPlansApi = {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        `Error adding recipe to meal plan ${planId}:`,
-        error,
-      );
+      console.error(`Error adding recipe to meal plan ${planId}:`, error);
       throw error;
     }
   },
@@ -221,10 +223,7 @@ export const mealPlansApi = {
         params: { recipeId, day },
       });
     } catch (error) {
-      console.error(
-        `Error removing recipe from meal plan ${planId}:`,
-        error,
-      );
+      console.error(`Error removing recipe from meal plan ${planId}:`, error);
       throw error;
     }
   },
@@ -243,10 +242,7 @@ export const mealPlansApi = {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        `Error updating recipe in meal plan ${planId}:`,
-        error,
-      );
+      console.error(`Error updating recipe in meal plan ${planId}:`, error);
       throw error;
     }
   },
@@ -287,10 +283,7 @@ export const mealPlansApi = {
       );
       return response.data;
     } catch (error) {
-      console.error(
-        `Error updating ${day} in meal plan ${planId}:`,
-        error,
-      );
+      console.error(`Error updating ${day} in meal plan ${planId}:`, error);
       throw error;
     }
   },

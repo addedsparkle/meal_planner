@@ -1,6 +1,7 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { recipes, recipesToIngredients, ingredients, recipesToMealTypes } from '../db/schema.ts';
 import { eq, and } from 'drizzle-orm';
+import { FastifyBaseLogger } from 'fastify';
 
 type Recipe = typeof recipes.$inferSelect;
 type RecipeInsert = typeof recipes.$inferInsert;
@@ -11,17 +12,22 @@ type MealType = NonNullable<RecipeToMealTypeInsert['mealType']>;
 
 class RecipeService {
     private db: LibSQLDatabase;
+    private logger: FastifyBaseLogger;
 
-    constructor(db: LibSQLDatabase) {
+    constructor(db: LibSQLDatabase, logger: FastifyBaseLogger) {
         this.db = db;
+        this.logger = logger;
+        logger.info("RECIPE SERVICE started")
     }
 
     async addRecipe(recipe: RecipeInsert, mealTypes?: MealType[]) {
         const result: Recipe[] = await this.db.insert(recipes).values(recipe).returning();
         const newRecipe = result[0]!;
 
+        this.logger.info(`addRecipe called with ${recipe} and ${mealTypes}`)
         // If meal types are provided, insert them into the junction table
         if (mealTypes && mealTypes.length > 0) {
+            this.logger.info(`Adding meals ${mealTypes} to recipe ${newRecipe.name}(${recipe.id})`)
             await this.db.insert(recipesToMealTypes).values(
                 mealTypes.map(mealType => ({
                     recipeId: newRecipe.id,

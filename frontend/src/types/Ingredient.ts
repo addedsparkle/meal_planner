@@ -3,7 +3,7 @@ export type Ingredient = {
   name: string;
 };
 
-export type Protein = "Chicken" | "Beef" | "Pork" | "Bean" | "Egg"
+export type Protein = "Chicken" | "Beef" | "Pork" | "Bean" | "Egg";
 
 export type Unit = "g" | "ml" | "pieces" | "cup" | "tbsp" | "tsp";
 
@@ -12,6 +12,6 @@ export type RecipeIngredient = Ingredient & {
   unit: Unit | null;
 };
 
-export type IngredientIn = Omit<Ingredient, "id">
+export type IngredientIn = Omit<Ingredient, "id">;
 
-export type RecipeIngredientIn = Omit<RecipeIngredient, "id">
+export type RecipeIngredientIn = Omit<RecipeIngredient, "id">;

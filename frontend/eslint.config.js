@@ -35,7 +35,7 @@ export default tseslint.config([
       ],
       // Disabled due to internal rule crash
       "@typescript-eslint/unified-signatures": "off",
-      "@typescript-eslint/restrict-template-expressions": "off"
+      "@typescript-eslint/restrict-template-expressions": "off",
     },
   },
 ]);

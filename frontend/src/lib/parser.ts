@@ -27,7 +27,9 @@ export async function parseContents(file: File): Promise<RecipeIn[]> {
               (row["Can batch"] || "").toLowerCase() === "true" ||
               (row["Can batch"] || "") === "1",
             instructions: "TBA",
-            ingredients: row["Ingredients"].split(",").map((name) => {return {name, amount: 0, unit: null}})
+            ingredients: row["Ingredients"].split(",").map((name) => {
+              return { name, amount: 0, unit: null };
+            }),
           });
         });
         resolve(importedRecipes);

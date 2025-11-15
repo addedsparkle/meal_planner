@@ -1,15 +1,18 @@
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { recipesToIngredients, ingredients, recipes } from '../db/schema.ts';
 import { eq } from 'drizzle-orm';
+import { FastifyBaseLogger } from 'fastify';
 
 type Ingredient = typeof ingredients.$inferSelect;
 type IngredientInsert = typeof ingredients.$inferInsert;
 
 class IngredientService {
     private db: LibSQLDatabase;
+    private logger: FastifyBaseLogger;
 
-    constructor(db: LibSQLDatabase) {
+    constructor(db: LibSQLDatabase, logger: FastifyBaseLogger) {
         this.db = db;
+        this.logger = logger;
     }
 
     async addIngredient(ingredient: IngredientInsert): Promise<Ingredient> {
