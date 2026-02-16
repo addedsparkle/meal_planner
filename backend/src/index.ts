@@ -1,54 +1,46 @@
-import 'dotenv/config';
-import Fastify from 'fastify';
-import { registerSchemas } from './schemas/index.ts';
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 
-// Import plugins
-import sensiblePlugin from './plugins/sensible.ts';
-import supportPlugin from './plugins/support.ts';
-import dbPlugin from './plugins/db.ts';
-import servicesPlugin from './plugins/services.ts';
+const HOST = process.env["HOST"] ?? "0.0.0.0";
+const PORT = Number(process.env["PORT"] ?? 3000);
 
-// Import routes
-import rootRoute from './routes/root.ts';
-import recipesRoute from './routes/api/recipes.ts';
-import weekPlansRoute from './routes/api/meal-plans.ts';
-import ingredientsRoute from './routes/api/ingredients.ts';
-
-const fastify = Fastify({
+const app = Fastify({
   logger: true,
 });
 
-const start = async () => {
-  try {
-    // Register JSON schemas
-    registerSchemas(fastify);
+await app.register(cors, {
+  origin: true,
+});
 
-    fastify.log.debug("DEBUG level")
-    fastify.log.info("INFO level")
-    fastify.log.warn("WARN level")
-    fastify.log.error("ERROR level")
+await app.register(swagger, {
+  openapi: {
+    info: {
+      title: "Meal Planner API",
+      description: "API for managing recipes, meal plans, and shopping lists",
+      version: "1.0.0",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: "Development server",
+      },
+    ],
+  },
+});
 
-    // Register plugins
-    await fastify.register(sensiblePlugin);
-    await fastify.register(supportPlugin);
-    await fastify.register(dbPlugin);
-    await fastify.register(servicesPlugin);
+await app.register(swaggerUi, {
+  routePrefix: "/docs",
+});
 
-    // Register routes
-    await fastify.register(rootRoute);
-    await fastify.register(recipesRoute, { prefix: '/api/recipes' });
-    await fastify.register(weekPlansRoute, { prefix: '/api/meal-plans' });
-    await fastify.register(ingredientsRoute, { prefix: '/api/ingredients' });
+app.get("/health", async () => {
+  return { status: "ok" };
+});
 
-    const port = parseInt(process.env.PORT || '3000', 10);
-    const host = process.env.HOST || '0.0.0.0';
-
-    await fastify.listen({ port, host });
-    fastify.log.info(`Server listening on ${host}:${port}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
+try {
+  await app.listen({ host: HOST, port: PORT });
+} catch (err) {
+  app.log.error(err);
+  process.exit(1);
+}

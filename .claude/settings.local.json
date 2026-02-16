@@ -6,7 +6,10 @@
       "Bash(timeout 5 npm run dev:*)",
       "Bash(curl:*)",
       "Bash(npm test:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)",
+      "Bash(timeout 5 npx tsx:*)"
     ],
     "deny": [],
     "ask": []
