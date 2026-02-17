@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import { closeDb } from "./db/index.js";
 
 const HOST = process.env["HOST"] ?? "0.0.0.0";
 const PORT = Number(process.env["PORT"] ?? 3000);
@@ -37,6 +38,16 @@ await app.register(swaggerUi, {
 app.get("/health", async () => {
   return { status: "ok" };
 });
+
+const shutdown = async (): Promise<void> => {
+  app.log.info("Shutting down...");
+  await app.close();
+  closeDb();
+  process.exit(0);
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 try {
   await app.listen({ host: HOST, port: PORT });
