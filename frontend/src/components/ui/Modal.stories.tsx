@@ -8,6 +8,11 @@ const meta = {
   component: Modal,
   parameters: { layout: "centered" },
   tags: ["autodocs"],
+  args: {
+    open: false,
+    onClose: () => {},
+    children: null,
+  },
 } satisfies Meta<typeof Modal>;
 
 export default meta;
@@ -52,23 +57,25 @@ export const TwoXL: Story = {
   render: () => <ModalDemo size="2xl" />,
 };
 
+function LongContentModal() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Open Long Modal</Button>
+      <Modal open={open} onClose={() => setOpen(false)} title="Long Content">
+        {Array.from({ length: 20 }, (_, i) => (
+          <p key={i} className="mb-2 text-sm text-gray-700">
+            Paragraph {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </p>
+        ))}
+        <div className="flex justify-end pt-2">
+          <Button onClick={() => setOpen(false)}>Close</Button>
+        </div>
+      </Modal>
+    </>
+  );
+}
+
 export const WithLongContent: Story = {
-  render: () => {
-    const [open, setOpen] = useState(false);
-    return (
-      <>
-        <Button onClick={() => setOpen(true)}>Open Long Modal</Button>
-        <Modal open={open} onClose={() => setOpen(false)} title="Long Content">
-          {Array.from({ length: 20 }, (_, i) => (
-            <p key={i} className="mb-2 text-sm text-gray-700">
-              Paragraph {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            </p>
-          ))}
-          <div className="flex justify-end pt-2">
-            <Button onClick={() => setOpen(false)}>Close</Button>
-          </div>
-        </Modal>
-      </>
-    );
-  },
+  render: () => <LongContentModal />,
 };
