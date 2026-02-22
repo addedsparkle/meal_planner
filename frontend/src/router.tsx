@@ -9,6 +9,7 @@ import type { NotFoundRouteComponent } from "@tanstack/react-router";
 import { UtensilsCrossed } from "lucide-react";
 import { RecipesPage } from "./pages/RecipesPage";
 import { MealPlansPage } from "./pages/MealPlansPage";
+import { MealPlanDetailPage } from "./pages/MealPlanDetailPage";
 import { ShoppingListPage } from "./pages/ShoppingListPage";
 
 const NAV_LINKS = [
@@ -78,6 +79,12 @@ const mealPlansRoute = createRoute({
   component: MealPlansPage,
 });
 
+const mealPlanDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/meal-plans/$id",
+  component: MealPlanDetailPage,
+});
+
 const shoppingListRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/shopping-list",
@@ -87,6 +94,7 @@ const shoppingListRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   recipesRoute,
   mealPlansRoute,
+  mealPlanDetailRoute,
   shoppingListRoute,
 ]);
 

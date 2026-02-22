@@ -3,8 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MealPlanEditor } from "./MealPlanEditor";
 import type { MealPlan, Recipe } from "../../lib/types";
 
-const noop = () => {};
-
 function day(id: number, date: string, mealType: string, name: string, protein: string | null = null, freezable = false) {
   return { id, dayDate: date, mealType, recipe: { id, name, protein, freezable, description: null } };
 }
@@ -90,7 +88,7 @@ const meta = {
   component: MealPlanEditor,
   tags: ["autodocs"],
   decorators: [withData],
-  args: { plan: mockPlan, onDone: noop },
+  args: { plan: mockPlan },
 } satisfies Meta<typeof MealPlanEditor>;
 
 export default meta;

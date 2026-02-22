@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ArrowLeftRight, Snowflake } from "lucide-react";
-import { Button } from "../ui/Button";
 import { ErrorMessage } from "../ui/ErrorMessage";
 import { Spinner } from "../ui/Spinner";
 import { useUpdateMealPlan } from "../../hooks/useMealPlans";
@@ -55,12 +54,11 @@ interface SelectedCell {
   mealType: string;
 }
 
-interface MealPlanEditorProps {
+export interface MealPlanEditorProps {
   plan: MealPlan;
-  onDone: () => void;
 }
 
-export function MealPlanEditor({ plan, onDone }: MealPlanEditorProps) {
+export function MealPlanEditor({ plan }: MealPlanEditorProps) {
   const [days, setDays] = useState<MealPlanDay[]>(() => plan.days);
   const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
   const [saveError, setSaveError] = useState<Error | null>(null);
@@ -269,11 +267,6 @@ export function MealPlanEditor({ plan, onDone }: MealPlanEditorProps) {
         </p>
       )}
 
-      <div className="flex justify-end border-t border-gray-100 pt-3">
-        <Button onClick={onDone} disabled={updatePlan.isPending}>
-          Done
-        </Button>
-      </div>
     </div>
   );
 }

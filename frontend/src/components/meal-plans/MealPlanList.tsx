@@ -1,20 +1,13 @@
 import { useState } from "react";
 import { CalendarDays, Plus, Trash2, Wand2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "../ui/Button";
 import { Card, CardBody, CardFooter } from "../ui/Card";
 import { Modal } from "../ui/Modal";
 import { ErrorMessage } from "../ui/ErrorMessage";
 import { MealPlanGenerator } from "./MealPlanGenerator";
-import { MealPlanCalendar } from "./MealPlanCalendar";
-import { MealPlanEditor } from "./MealPlanEditor";
 import { useMealPlans, useDeleteMealPlan } from "../../hooks/useMealPlans";
 import type { MealPlan } from "../../lib/types";
-
-type ModalState =
-  | { kind: "none" }
-  | { kind: "generate" }
-  | { kind: "view"; plan: MealPlan }
-  | { kind: "edit"; plan: MealPlan };
 
 function formatDateRange(startDate: string, endDate: string): string {
   const fmt = (d: string) =>
@@ -28,12 +21,10 @@ function formatDateRange(startDate: string, endDate: string): string {
 
 function MealPlanCard({
   plan,
-  onView,
   onDelete,
   deleting,
 }: {
   plan: MealPlan;
-  onView: (plan: MealPlan) => void;
   onDelete: (plan: MealPlan) => void;
   deleting?: boolean;
 }) {
@@ -52,24 +43,27 @@ function MealPlanCard({
   return (
     <Card className="flex flex-col">
       <CardBody className="flex-1">
-        <h3
-          className="cursor-pointer font-semibold text-gray-900 hover:text-blue-600"
-          onClick={() => onView(plan)}
-        >
-          {plan.name}
-        </h3>
+        <Link to="/meal-plans/$id" params={{ id: String(plan.id) }}>
+          <h3 className="font-semibold text-gray-900 transition-colors hover:text-blue-600">
+            {plan.name}
+          </h3>
+        </Link>
         <p className="mt-1 text-sm text-gray-500">
           {formatDateRange(plan.startDate, plan.endDate)}
         </p>
         {mealTypeSummary && (
-          <p className="mt-2 text-xs text-gray-400 capitalize">{mealTypeSummary}</p>
+          <p className="mt-2 text-xs capitalize text-gray-400">{mealTypeSummary}</p>
         )}
       </CardBody>
       <CardFooter className="flex justify-end gap-2">
-        <Button size="sm" variant="ghost" onClick={() => onView(plan)}>
+        <Link
+          to="/meal-plans/$id"
+          params={{ id: String(plan.id) }}
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+        >
           <CalendarDays className="h-3.5 w-3.5" />
           View
-        </Button>
+        </Link>
         <Button
           size="sm"
           variant="danger"
@@ -89,7 +83,7 @@ function MealPlanCard({
 export function MealPlanList() {
   const { data: plans = [], isLoading, error } = useMealPlans();
   const deletePlan = useDeleteMealPlan();
-  const [modal, setModal] = useState<ModalState>({ kind: "none" });
+  const [showGenerate, setShowGenerate] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   async function handleDelete(plan: MealPlan) {
@@ -113,7 +107,7 @@ export function MealPlanList() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Meal Plans</h2>
-        <Button onClick={() => setModal({ kind: "generate" })}>
+        <Button onClick={() => setShowGenerate(true)}>
           <Wand2 className="h-4 w-4" />
           Generate Plan
         </Button>
@@ -124,7 +118,7 @@ export function MealPlanList() {
           <CalendarDays className="mx-auto h-10 w-10 text-gray-300" />
           <p className="mt-3 text-sm font-medium text-gray-500">No meal plans yet</p>
           <p className="mt-1 text-xs text-gray-400">Generate one to get started</p>
-          <Button className="mt-4" onClick={() => setModal({ kind: "generate" })}>
+          <Button className="mt-4" onClick={() => setShowGenerate(true)}>
             <Plus className="h-4 w-4" />
             Generate Plan
           </Button>
@@ -135,7 +129,6 @@ export function MealPlanList() {
             <MealPlanCard
               key={plan.id}
               plan={plan}
-              onView={(p) => setModal({ kind: "view", plan: p })}
               onDelete={handleDelete}
               deleting={deletingId === plan.id}
             />
@@ -143,55 +136,16 @@ export function MealPlanList() {
         </div>
       )}
 
-      {/* Generate modal */}
       <Modal
-        open={modal.kind === "generate"}
-        onClose={() => setModal({ kind: "none" })}
+        open={showGenerate}
+        onClose={() => setShowGenerate(false)}
         title="Generate Meal Plan"
       >
         <MealPlanGenerator
-          onSuccess={() => setModal({ kind: "none" })}
-          onCancel={() => setModal({ kind: "none" })}
+          onSuccess={() => setShowGenerate(false)}
+          onCancel={() => setShowGenerate(false)}
         />
       </Modal>
-
-      {/* View/calendar modal */}
-      {modal.kind === "view" && (
-        <Modal
-          open={true}
-          onClose={() => setModal({ kind: "none" })}
-          title={modal.plan.name}
-          size="2xl"
-        >
-          <div className="text-xs text-gray-500 mb-4">
-            {formatDateRange(modal.plan.startDate, modal.plan.endDate)}
-          </div>
-          <MealPlanCalendar plan={modal.plan} />
-          <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
-            <Button variant="secondary" onClick={() => setModal({ kind: "none" })}>
-              Close
-            </Button>
-            <Button onClick={() => setModal({ kind: "edit", plan: modal.plan })}>
-              Edit Plan
-            </Button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Edit modal */}
-      {modal.kind === "edit" && (
-        <Modal
-          open={true}
-          onClose={() => setModal({ kind: "none" })}
-          title={`Edit: ${modal.plan.name}`}
-          size="2xl"
-        >
-          <MealPlanEditor
-            plan={modal.plan}
-            onDone={() => setModal({ kind: "none" })}
-          />
-        </Modal>
-      )}
     </div>
   );
 }
