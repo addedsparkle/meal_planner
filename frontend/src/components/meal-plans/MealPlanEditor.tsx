@@ -77,6 +77,7 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
   const sortedDates = [...dayMap.keys()].sort();
   const weeks = chunkArray(sortedDates, 7);
   const hasMealType = (type: string) => days.some((d) => d.mealType === type);
+  const mealTypes = (["breakfast", "lunch", "dinner"] as const).filter(hasMealType);
 
   const availableRecipes = selectedCell
     ? recipes.filter((r) => r.mealTypes.includes(selectedCell.mealType))
@@ -128,29 +129,84 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
     }
   }
 
+  const swapButton = (date: string, mealType: string) => (
+    <button
+      type="button"
+      onClick={() => setSelectedCell({ dayDate: date, mealType })}
+      className="text-gray-400 transition-colors hover:text-blue-500"
+      title="Swap recipe"
+      disabled={updatePlan.isPending}
+    >
+      <ArrowLeftRight className="h-3.5 w-3.5" />
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Editable calendar */}
-      <div className="flex flex-col gap-6">
+
+      {/* ── Mobile: each day as a row (< 800px) ── */}
+      <div className="flex flex-col gap-3 min-[800px]:hidden">
+        {sortedDates.map((date) => {
+          const meals = dayMap.get(date) ?? {};
+          return (
+            <div key={date} className="rounded-lg border border-gray-200 bg-white p-3">
+              <p className="mb-2 text-sm font-semibold text-gray-700">{formatDate(date)}</p>
+              <div className="flex flex-col gap-1.5">
+                {mealTypes.map((mealType) => {
+                  const meal = meals[mealType];
+                  if (!meal) return null;
+                  const isSelected =
+                    selectedCell?.dayDate === date && selectedCell?.mealType === mealType;
+                  return (
+                    <div
+                      key={mealType}
+                      className={`flex items-center gap-2 rounded border px-2 py-1.5 ${MEAL_COLORS[mealType]} ${
+                        isSelected ? "ring-2 ring-blue-400" : ""
+                      }`}
+                    >
+                      <span className={`w-16 shrink-0 text-xs font-semibold ${MEAL_LABEL_COLORS[mealType]}`}>
+                        {MEAL_LABELS[mealType]}
+                      </span>
+                      <span className="flex-1 text-sm font-medium text-gray-800">
+                        {meal.recipe.name}
+                      </span>
+                      {meal.recipe.protein && (
+                        <span className="text-xs capitalize text-gray-400">{meal.recipe.protein}</span>
+                      )}
+                      {meal.recipe.freezable && (
+                        <Snowflake className="h-3.5 w-3.5 shrink-0 text-cyan-500" />
+                      )}
+                      {swapButton(date, mealType)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Desktop: meal-type rows × day columns (≥ 800px) ── */}
+      <div className="hidden min-[800px]:flex flex-col gap-6">
         {weeks.map((weekDates, wi) => (
           <div key={wi} className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  <th className="w-20 py-1 pr-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  <th className="w-20 py-1 pr-3 text-left text-xs font-medium uppercase tracking-wide text-gray-400">
                     {wi === 0 ? "Meal" : ""}
                   </th>
                   {weekDates.map((date) => (
-                    <th key={date} className="px-2 py-1 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">
+                    <th key={date} className="whitespace-nowrap px-2 py-1 text-left text-xs font-semibold text-gray-600">
                       {formatDate(date)}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {(["breakfast", "lunch", "dinner"] as const).filter(hasMealType).map((mealType) => (
+                {mealTypes.map((mealType) => (
                   <tr key={mealType}>
-                    <td className={`py-2 pr-3 text-xs font-semibold whitespace-nowrap ${MEAL_LABEL_COLORS[mealType]}`}>
+                    <td className={`whitespace-nowrap py-2 pr-3 text-xs font-semibold ${MEAL_LABEL_COLORS[mealType]}`}>
                       {MEAL_LABELS[mealType]}
                     </td>
                     {weekDates.map((date) => {
@@ -165,33 +221,25 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
                                 isSelected ? "ring-2 ring-blue-400" : ""
                               }`}
                             >
-                              <p className="font-medium text-gray-800 leading-tight text-xs">
+                              <p className="text-xs font-medium leading-tight text-gray-800">
                                 {meal.recipe.name}
                               </p>
                               {meal.recipe.protein && (
-                                <p className="text-xs text-gray-500 capitalize mt-0.5">
+                                <p className="mt-0.5 text-xs capitalize text-gray-500">
                                   {meal.recipe.protein}
                                 </p>
                               )}
-                              <div className="flex items-center justify-between mt-1">
+                              <div className="mt-1 flex items-center justify-between">
                                 {meal.recipe.freezable ? (
                                   <Snowflake className="h-3 w-3 text-cyan-500" />
                                 ) : (
                                   <span />
                                 )}
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedCell({ dayDate: date, mealType })}
-                                  className="text-gray-400 hover:text-blue-500 transition-colors"
-                                  title="Swap recipe"
-                                  disabled={updatePlan.isPending}
-                                >
-                                  <ArrowLeftRight className="h-3 w-3" />
-                                </button>
+                                {swapButton(date, mealType)}
                               </div>
                             </div>
                           ) : (
-                            <div className="rounded border border-dashed border-gray-200 px-2 py-1.5 text-xs text-gray-300 italic">
+                            <div className="rounded border border-dashed border-gray-200 px-2 py-1.5 text-xs italic text-gray-300">
                               —
                             </div>
                           )}
@@ -206,7 +254,7 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
         ))}
       </div>
 
-      {/* Recipe picker panel */}
+      {/* Recipe picker panel — shared by both layouts */}
       {selectedCell && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
           <div className="mb-2 flex items-center justify-between">
@@ -215,8 +263,7 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
               {formatDateLong(selectedCell.dayDate)}
               {selectedDayMeal && (
                 <span className="font-normal text-blue-600">
-                  {" "}
-                  &mdash; currently: {selectedDayMeal.recipe.name}
+                  {" "}&mdash; currently: {selectedDayMeal.recipe.name}
                 </span>
               )}
             </p>
@@ -266,7 +313,6 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
           <Spinner size="sm" /> Saving…
         </p>
       )}
-
     </div>
   );
 }
