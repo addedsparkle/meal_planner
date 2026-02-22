@@ -11,8 +11,19 @@
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [5173, 3000, 8888, 3999],
 
+  // Forward SSH agent from host for git authentication (macOS + Docker Desktop)
+  "mounts": [
+    "source=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock,type=bind"
+  ],
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "/run/host-services/ssh-auth.sock"
+  },
+
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "npm install -g npm@latest && npm install -g @anthropic-ai/claude-code",
+  "postCreateCommand": "npm install -g npm@latest && curl -fsSL https://claude.ai/install.sh | bash",
+
+  // Fix SSH agent socket permissions so the non-root user can access it.
+  "postStartCommand": "sudo chmod 666 /run/host-services/ssh-auth.sock 2>/dev/null || true",
 
   // Configure tool-specific properties.
   "customizations": {
