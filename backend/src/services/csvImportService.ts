@@ -69,6 +69,7 @@ export async function importRecipesFromCsv(
         description: row.description?.trim() || undefined,
         protein: row.protein?.trim() || undefined,
         mealTypes: parseMealTypes(row.meal_types),
+        suitableDays: "any",
         freezable: row.freezable?.trim().toLowerCase() === "true" || row.freezable?.trim() === "1",
         ingredients: row.ingredients ? parseIngredientString(row.ingredients) : undefined,
       };

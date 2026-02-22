@@ -10,6 +10,12 @@ import type { Recipe } from "../../lib/types";
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner"] as const;
 
+const SUITABLE_DAYS_OPTIONS = [
+  { value: "any", label: "Any day" },
+  { value: "weekday", label: "Weekdays only (batch-cook)" },
+  { value: "weekend", label: "Weekends only (longer prep)" },
+] as const;
+
 const ingredientSchema = z.object({
   name: z.string().min(1, "Required"),
   quantity: z.string().optional(),
@@ -21,6 +27,7 @@ const recipeSchema = z.object({
   description: z.string().optional(),
   protein: z.string().optional(),
   mealTypes: z.array(z.enum(MEAL_TYPES)).min(1, "Select at least one meal type"),
+  suitableDays: z.enum(["any", "weekday", "weekend"]),
   freezable: z.boolean(),
   // No .default([]) — keeps input/output types symmetric so zodResolver types align
   ingredients: z.array(ingredientSchema),
@@ -46,6 +53,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RecipeFormData>({
     resolver: zodResolver(recipeSchema),
@@ -57,6 +65,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
           mealTypes: recipe.mealTypes.filter((m): m is typeof MEAL_TYPES[number] =>
             (MEAL_TYPES as readonly string[]).includes(m)
           ),
+          suitableDays: recipe.suitableDays ?? "any",
           freezable: recipe.freezable,
           ingredients: recipe.ingredients.map((ing) => ({
             name: ing.name,
@@ -69,10 +78,14 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
           description: "",
           protein: "",
           mealTypes: ["dinner"],
+          suitableDays: "any",
           freezable: false,
           ingredients: [],
         },
   });
+
+  const selectedMealTypes = watch("mealTypes");
+  const showSuitableDays = selectedMealTypes?.includes("breakfast");
 
   const { fields, append, remove } = useFieldArray({ control, name: "ingredients" });
 
@@ -85,6 +98,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
       description: data.description || undefined,
       protein: data.protein || undefined,
       mealTypes: data.mealTypes,
+      suitableDays: data.suitableDays,
       freezable: data.freezable,
       ingredients: data.ingredients.filter((i) => i.name.trim() !== ""),
     };
@@ -146,6 +160,25 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
           <p className="text-xs text-red-600">{errors.mealTypes.message}</p>
         )}
       </div>
+
+      {showSuitableDays && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-gray-700">Breakfast suitability</span>
+          <div className="flex flex-col gap-1.5">
+            {SUITABLE_DAYS_OPTIONS.map(({ value, label }) => (
+              <label key={value} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                <input
+                  type="radio"
+                  value={value}
+                  {...register("suitableDays")}
+                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
         <input

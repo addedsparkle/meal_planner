@@ -112,6 +112,11 @@ export function deleteMealPlan(db: AppDatabase, id: number): boolean {
   return true;
 }
 
+function isWeekend(dateStr: string): boolean {
+  const day = new Date(dateStr + "T00:00:00").getDay();
+  return day === 0 || day === 6;
+}
+
 function getDaysBetween(start: string, end: string): string[] {
   const days: string[] = [];
   const current = new Date(start);
@@ -171,15 +176,44 @@ export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) 
   const days = getDaysBetween(input.startDate, input.endDate);
   const distributedDinner = distributeByProtein(dinnerRecipes);
   const distributedLunch = lunchRecipes.length > 0 ? distributeByProtein(lunchRecipes) : [];
-  const distributedBreakfast = breakfastRecipes.length > 0 ? distributeByProtein(breakfastRecipes) : [];
+
+  // Build breakfast pools.
+  // weekdayBfPool: weekday-specific + any-day recipes, used for batch rotation (Mon–Fri).
+  // weekendBfPool: only created when weekend-specific recipes exist; when null, weekend days
+  //   instead extend the current weekday batch so a new batch never starts on a weekend.
+  const weekdayBfRecipes = breakfastRecipes.filter((r) => r.suitableDays === "weekday" || r.suitableDays === "any");
+  const weekendSpecificRecipes = breakfastRecipes.filter((r) => r.suitableDays === "weekend");
+  const weekdayBfPool = distributeByProtein(weekdayBfRecipes.length > 0 ? weekdayBfRecipes : breakfastRecipes);
+  const weekendBfPool = weekendSpecificRecipes.length > 0
+    ? distributeByProtein([...weekendSpecificRecipes, ...breakfastRecipes.filter((r) => r.suitableDays === "any")])
+    : null;
 
   const dayEntries: Array<{ dayDate: string; recipeId: number; mealType: string }> = [];
 
+  // Batch state for the weekday/any breakfast pool.
+  // The batch counter increments every day, but a batch *transition* (starting a new batch)
+  // is deferred if it would land on a weekend — so a batch can end on a weekend but never
+  // starts on one. E.g. Thu/Fri/Sat is fine; a new batch then starts on the following Monday.
+  let batchIdx = 0;
+  let daysInCurrentBatch = 0;
+  let weekendBreakfastCount = 0;
+
   days.forEach((dayDate, i) => {
-    // Breakfast: same recipe for every 3 consecutive days (bulk-cook friendly)
-    if (distributedBreakfast.length > 0) {
-      const idx = Math.floor(i / 3) % distributedBreakfast.length;
-      dayEntries.push({ dayDate, recipeId: distributedBreakfast[idx]!.id, mealType: "breakfast" });
+    if (breakfastRecipes.length > 0) {
+      if (isWeekend(dayDate) && weekendBfPool !== null) {
+        // Weekend with dedicated recipes: rotate daily through the weekend pool
+        dayEntries.push({ dayDate, recipeId: weekendBfPool[weekendBreakfastCount % weekendBfPool.length]!.id, mealType: "breakfast" });
+        weekendBreakfastCount++;
+      } else {
+        // Weekday batch track (also covers weekends when no weekend-specific pool exists).
+        // Advance to the next batch only when the current day is a weekday.
+        if (daysInCurrentBatch >= 3 && !isWeekend(dayDate)) {
+          batchIdx++;
+          daysInCurrentBatch = 0;
+        }
+        dayEntries.push({ dayDate, recipeId: weekdayBfPool[batchIdx % weekdayBfPool.length]!.id, mealType: "breakfast" });
+        daysInCurrentBatch++;
+      }
     }
     // Lunch: daily rotation distributed by protein
     if (distributedLunch.length > 0) {

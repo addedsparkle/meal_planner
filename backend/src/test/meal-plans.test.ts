@@ -222,6 +222,185 @@ describe("Meal Plans API", () => {
     expect(breakfasts[4].recipe.id).toBe(breakfasts[5].recipe.id);
   });
 
+  it("POST /api/meal-plans/generate assigns weekday breakfast to Mon-Fri and weekend breakfast to Sat-Sun", async () => {
+    const app = await getApp();
+
+    // One recipe for each suitableDays value
+    const wdRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekday Oats", mealTypes: ["breakfast"], suitableDays: "weekday" },
+    });
+    const weekdayId = wdRes.json().id;
+
+    const weRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekend Shakshuka", mealTypes: ["breakfast"], suitableDays: "weekend" },
+    });
+    const weekendId = weRes.json().id;
+
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Pasta", mealTypes: ["dinner"] },
+    });
+
+    // 2026-09-07 Mon → 2026-09-13 Sun: 5 weekdays + 2 weekend days
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Split Plan", startDate: "2026-09-07", endDate: "2026-09-13" },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const breakfasts: Array<{ dayDate: string; recipe: { id: number } }> = res
+      .json()
+      .days.filter((d: { mealType: string }) => d.mealType === "breakfast");
+    expect(breakfasts).toHaveLength(7);
+
+    const weekdayDates = new Set(["2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11"]);
+    const weekendDates = new Set(["2026-09-12", "2026-09-13"]);
+
+    for (const bf of breakfasts) {
+      if (weekdayDates.has(bf.dayDate)) {
+        expect(bf.recipe.id).toBe(weekdayId);
+      } else if (weekendDates.has(bf.dayDate)) {
+        expect(bf.recipe.id).toBe(weekendId);
+      }
+    }
+  });
+
+  it("POST /api/meal-plans/generate batches weekday breakfast every 3 days but rotates weekend breakfast daily", async () => {
+    const app = await getApp();
+
+    // Two weekday and two weekend breakfast recipes
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekday A", mealTypes: ["breakfast"], suitableDays: "weekday" },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekday B", mealTypes: ["breakfast"], suitableDays: "weekday" },
+    });
+
+    const weRes1 = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekend A", mealTypes: ["breakfast"], suitableDays: "weekend" },
+    });
+    const weId1 = weRes1.json().id;
+
+    const weRes2 = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Weekend B", mealTypes: ["breakfast"], suitableDays: "weekend" },
+    });
+    const weId2 = weRes2.json().id;
+
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Pasta", mealTypes: ["dinner"] },
+    });
+
+    // 2026-09-07 Mon → 2026-09-13 Sun: 5 weekdays (Mon-Fri) + 2 weekend days (Sat-Sun)
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Batch Plan", startDate: "2026-09-07", endDate: "2026-09-13" },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const breakfasts: Array<{ dayDate: string; recipe: { id: number } }> = res
+      .json()
+      .days.filter((d: { mealType: string }) => d.mealType === "breakfast");
+
+    const byDate = Object.fromEntries(breakfasts.map((b) => [b.dayDate, b.recipe.id]));
+
+    // Mon-Tue-Wed (weekday batch 1) all get the same recipe
+    expect(byDate["2026-09-07"]).toBe(byDate["2026-09-08"]);
+    expect(byDate["2026-09-08"]).toBe(byDate["2026-09-09"]);
+
+    // Thu-Fri (weekday batch 2) share a different recipe from Mon-Wed
+    expect(byDate["2026-09-10"]).toBe(byDate["2026-09-11"]);
+    expect(byDate["2026-09-10"]).not.toBe(byDate["2026-09-07"]);
+
+    // Sat and Sun come from the weekend pool and rotate daily (different from each other)
+    expect([weId1, weId2]).toContain(byDate["2026-09-12"]);
+    expect([weId1, weId2]).toContain(byDate["2026-09-13"]);
+    expect(byDate["2026-09-12"]).not.toBe(byDate["2026-09-13"]);
+
+    // Weekend recipes must not appear on weekdays
+    const weekdayIds = ["2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11"].map(
+      (d) => byDate[d],
+    );
+    expect(weekdayIds).not.toContain(weId1);
+    expect(weekdayIds).not.toContain(weId2);
+  });
+
+  it("POST /api/meal-plans/generate extends the current weekday batch into weekends when no weekend-specific recipes exist", async () => {
+    const app = await getApp();
+
+    // Two "any" breakfast recipes — no weekend-specific ones
+    const bfRes1 = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Oats", mealTypes: ["breakfast"], suitableDays: "any" },
+    });
+    const oatsId = bfRes1.json().id;
+
+    const bfRes2 = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Granola", mealTypes: ["breakfast"], suitableDays: "any" },
+    });
+    const granolaId = bfRes2.json().id;
+
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Pasta", mealTypes: ["dinner"] },
+    });
+
+    // 2026-09-07 Mon → 2026-09-13 Sun
+    // Batch 0: Mon-Tue-Wed (3 days, starts on Mon ✓)
+    // Batch 1: Thu-Fri-Sat (3 days, starts on Thu ✓ — a batch can naturally end on a weekend)
+    // Sun: would start batch 2, but Sun is a weekend → held back, extends batch 1
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Extend Batch Plan", startDate: "2026-09-07", endDate: "2026-09-13" },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const breakfasts: Array<{ dayDate: string; recipe: { id: number } }> = res
+      .json()
+      .days.filter((d: { mealType: string }) => d.mealType === "breakfast");
+
+    const byDate = Object.fromEntries(breakfasts.map((b) => [b.dayDate, b.recipe.id]));
+
+    // Mon-Tue-Wed all share batch 0's recipe
+    expect(byDate["2026-09-07"]).toBe(byDate["2026-09-08"]);
+    expect(byDate["2026-09-08"]).toBe(byDate["2026-09-09"]);
+
+    // Thu-Fri-Sat are all batch 1 (batch starts on Thu — a weekday — and Sat is its 3rd day)
+    expect(byDate["2026-09-10"]).toBe(byDate["2026-09-11"]);
+    expect(byDate["2026-09-11"]).toBe(byDate["2026-09-12"]);
+    expect(byDate["2026-09-10"]).not.toBe(byDate["2026-09-07"]);
+
+    // Sun would start batch 2 but is a weekend, so it extends batch 1
+    expect(byDate["2026-09-13"]).toBe(byDate["2026-09-10"]);
+
+    // Both recipe IDs are the two we created
+    const allIds = new Set(Object.values(byDate));
+    expect(allIds.size).toBe(2);
+    expect(allIds).toContain(oatsId);
+    expect(allIds).toContain(granolaId);
+  });
+
   it("POST /api/meal-plans/generate returns 400 with no recipes", async () => {
     const app = await getApp();
     const res = await app.inject({

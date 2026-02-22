@@ -10,11 +10,15 @@ const ingredientInput = z.object({
 export const MEAL_TYPES = ["breakfast", "lunch", "dinner"] as const;
 export type MealType = (typeof MEAL_TYPES)[number];
 
+export const SUITABLE_DAYS = ["any", "weekday", "weekend"] as const;
+export type SuitableDays = (typeof SUITABLE_DAYS)[number];
+
 export const createRecipeSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   protein: z.string().optional(),
   mealTypes: z.array(z.enum(MEAL_TYPES)).min(1).default(["dinner"]),
+  suitableDays: z.enum(SUITABLE_DAYS).default("any"),
   freezable: z.boolean().default(false),
   ingredients: z.array(ingredientInput).optional(),
 });

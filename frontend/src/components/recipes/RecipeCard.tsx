@@ -37,6 +37,11 @@ export function RecipeCard({ recipe, onView, onEdit, onDelete, deleting }: Recip
               {mt}
             </span>
           ))}
+          {recipe.mealTypes.includes("breakfast") && recipe.suitableDays !== "any" && (
+            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 capitalize">
+              {recipe.suitableDays === "weekday" ? "Weekdays" : "Weekends"}
+            </span>
+          )}
           {recipe.freezable && (
             <span className="flex items-center gap-0.5 rounded-full bg-cyan-100 px-2 py-0.5 text-xs font-medium text-cyan-700">
               <Snowflake className="h-3 w-3" />

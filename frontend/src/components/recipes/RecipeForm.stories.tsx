@@ -10,6 +10,7 @@ const existingRecipe: Recipe = {
   description: "Quick Asian-style stir fry with vegetables.",
   protein: "chicken",
   mealTypes: ["dinner"],
+  suitableDays: "any",
   freezable: false,
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
@@ -62,6 +63,34 @@ export const EditFreezable: Story = {
       name: "Beef Bolognese",
       protein: "beef",
       freezable: true,
+    },
+  },
+};
+
+export const EditBreakfastWeekday: Story = {
+  args: {
+    recipe: {
+      ...existingRecipe,
+      name: "Overnight Oats",
+      protein: null,
+      mealTypes: ["breakfast"],
+      suitableDays: "weekday",
+      freezable: false,
+      ingredients: [],
+    },
+  },
+};
+
+export const EditBreakfastWeekend: Story = {
+  args: {
+    recipe: {
+      ...existingRecipe,
+      name: "Shakshuka",
+      protein: "eggs",
+      mealTypes: ["breakfast"],
+      suitableDays: "weekend",
+      freezable: false,
+      ingredients: [],
     },
   },
 };

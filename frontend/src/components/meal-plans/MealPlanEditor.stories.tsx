@@ -13,6 +13,7 @@ function recipe(id: number, name: string, protein: string | null, mealTypes: str
     name,
     protein,
     mealTypes,
+    suitableDays: "any",
     freezable,
     description: null,
     createdAt: "2026-01-01T00:00:00Z",

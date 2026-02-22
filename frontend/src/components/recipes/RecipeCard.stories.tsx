@@ -8,6 +8,7 @@ const base: Recipe = {
   description: "Quick Asian-style stir fry with vegetables and soy sauce.",
   protein: "chicken",
   mealTypes: ["dinner"],
+  suitableDays: "any",
   freezable: false,
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
@@ -71,6 +72,34 @@ export const NoProtein: Story = {
       protein: null,
       mealTypes: ["breakfast"],
       description: null,
+      ingredients: [],
+    },
+  },
+};
+
+export const WeekdayBreakfast: Story = {
+  args: {
+    recipe: {
+      ...base,
+      name: "Overnight Oats",
+      protein: null,
+      mealTypes: ["breakfast"],
+      suitableDays: "weekday",
+      description: "Batch-prep oats, ready in minutes.",
+      ingredients: [],
+    },
+  },
+};
+
+export const WeekendBreakfast: Story = {
+  args: {
+    recipe: {
+      ...base,
+      name: "Shakshuka",
+      protein: "eggs",
+      mealTypes: ["breakfast"],
+      suitableDays: "weekend",
+      description: "Slow-cooked eggs in spiced tomato sauce.",
       ingredients: [],
     },
   },

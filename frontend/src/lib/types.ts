@@ -6,12 +6,15 @@ export interface RecipeIngredient {
   notes: string | null;
 }
 
+export type SuitableDays = "any" | "weekday" | "weekend";
+
 export interface Recipe {
   id: number;
   name: string;
   description: string | null;
   protein: string | null;
   mealTypes: string[];
+  suitableDays: SuitableDays;
   freezable: boolean;
   createdAt: string;
   updatedAt: string;
@@ -23,6 +26,7 @@ export interface RecipeInput {
   description?: string;
   protein?: string;
   mealTypes?: string[];
+  suitableDays?: SuitableDays;
   freezable?: boolean;
   ingredients?: {
     name: string;

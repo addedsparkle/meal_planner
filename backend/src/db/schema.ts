@@ -9,6 +9,7 @@ export const recipes = sqliteTable("recipes", {
   description: text("description"),
   protein: text("protein"),
   mealTypes: text("meal_types").notNull().default("dinner"),
+  suitableDays: text("suitable_days").notNull().default("any"),
   freezable: integer("freezable", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
   updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),

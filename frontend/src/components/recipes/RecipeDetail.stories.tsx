@@ -8,6 +8,7 @@ const base: Recipe = {
   description: "Quick Asian-style stir fry with vegetables and soy sauce.",
   protein: "chicken",
   mealTypes: ["dinner"],
+  suitableDays: "any",
   freezable: false,
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
