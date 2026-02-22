@@ -18,7 +18,7 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
 }
 
-export interface CreateRecipeInput {
+export interface RecipeInput {
   name: string;
   description?: string;
   protein?: string;
@@ -32,8 +32,6 @@ export interface CreateRecipeInput {
   }[];
 }
 
-export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {}
-
 export interface Ingredient {
   id: number;
   name: string;
@@ -41,18 +39,25 @@ export interface Ingredient {
   createdAt: string;
 }
 
-export interface CreateIngredientInput {
+export interface IngredientInput {
   name: string;
   category?: string;
 }
 
-export interface UpdateIngredientInput extends Partial<CreateIngredientInput> {}
+
+export interface MealPlanDayRecipe {
+  id: number;
+  name: string;
+  description: string | null;
+  protein: string | null;
+  freezable: boolean;
+}
 
 export interface MealPlanDay {
   id: number;
   dayDate: string;
   mealType: string;
-  recipe: Recipe;
+  recipe: MealPlanDayRecipe;
 }
 
 export interface MealPlan {
@@ -64,7 +69,7 @@ export interface MealPlan {
   days: MealPlanDay[];
 }
 
-export interface CreateMealPlanInput {
+export interface MealPlanInput {
   name: string;
   startDate: string;
   endDate: string;
@@ -75,13 +80,10 @@ export interface CreateMealPlanInput {
   }[];
 }
 
-export interface UpdateMealPlanInput extends Partial<CreateMealPlanInput> {}
-
 export interface GenerateMealPlanInput {
   name: string;
   startDate: string;
   endDate: string;
-  mealType?: string;
 }
 
 export interface ShoppingListItem {

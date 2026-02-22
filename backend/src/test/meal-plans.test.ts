@@ -5,7 +5,7 @@ async function createTestRecipe(app: ReturnType<typeof getApp> extends Promise<i
   const res = await app.inject({
     method: "POST",
     url: "/api/recipes",
-    payload: { name, servings: 2 },
+    payload: { name },
   });
   return res.json();
 }
@@ -151,6 +151,7 @@ describe("Meal Plans API", () => {
 
   it("POST /api/meal-plans/generate creates a plan from recipes", async () => {
     const app = await getApp();
+    // Default recipes have mealTypes: ["dinner"] — generates one dinner entry per day
     await createTestRecipe(app, "Recipe A");
     await createTestRecipe(app, "Recipe B");
 
@@ -166,11 +167,59 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(201);
     const body = res.json();
     expect(body.name).toBe("Generated Plan");
+    // 3 days × 1 meal type (dinner only) = 3 entries
     expect(body.days).toHaveLength(3);
     for (const day of body.days) {
       expect(day.recipe).toBeDefined();
-      expect(day.recipe.id).toBeDefined();
+      expect(day.mealType).toBe("dinner");
     }
+  });
+
+  it("POST /api/meal-plans/generate includes breakfast every 3 days and lunch daily", async () => {
+    const app = await getApp();
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Oats", mealTypes: ["breakfast"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Sandwich", mealTypes: ["lunch"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Pasta", mealTypes: ["dinner"] },
+    });
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Full Plan", startDate: "2026-08-01", endDate: "2026-08-06" },
+    });
+    expect(res.statusCode).toBe(201);
+    const body = res.json();
+    // 6 days × 3 meal types = 18 entries
+    expect(body.days).toHaveLength(18);
+
+    const byDate = body.days.reduce((acc: Record<string, typeof body.days>, d: typeof body.days[0]) => {
+      (acc[d.dayDate] ??= []).push(d);
+      return acc;
+    }, {});
+
+    // Each day has breakfast, lunch and dinner
+    for (const entries of Object.values(byDate) as typeof body.days[]) {
+      const types = entries.map((e: typeof body.days[0]) => e.mealType).sort();
+      expect(types).toEqual(["breakfast", "dinner", "lunch"]);
+    }
+
+    // Days 1-3 share the same breakfast recipe; days 4-6 share the same
+    const breakfasts = body.days.filter((d: typeof body.days[0]) => d.mealType === "breakfast");
+    expect(breakfasts[0].recipe.id).toBe(breakfasts[1].recipe.id);
+    expect(breakfasts[1].recipe.id).toBe(breakfasts[2].recipe.id);
+    expect(breakfasts[3].recipe.id).toBe(breakfasts[4].recipe.id);
+    expect(breakfasts[4].recipe.id).toBe(breakfasts[5].recipe.id);
   });
 
   it("POST /api/meal-plans/generate returns 400 with no recipes", async () => {

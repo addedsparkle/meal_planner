@@ -12,7 +12,10 @@
       "Bash(timeout 5 npx tsx:*)",
       "Bash(python3:*)",
       "Bash(git push:*)",
-      "Bash(cd /workspaces/meal_planner/frontend && npx tsc --noEmit 2>&1)"
+      "Bash(cd /workspaces/meal_planner/frontend && npx tsc --noEmit 2>&1)",
+      "Bash(cd /workspaces/meal_planner/frontend && npx tsc -b 2>&1)",
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

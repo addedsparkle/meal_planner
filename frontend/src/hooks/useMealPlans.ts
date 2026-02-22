@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
-  CreateMealPlanInput,
-  UpdateMealPlanInput,
+  MealPlanInput,
   GenerateMealPlanInput,
 } from "../lib/types";
 import {
@@ -30,7 +29,7 @@ export function useMealPlan(id: number) {
 export function useCreateMealPlan() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateMealPlanInput) => createMealPlan(data),
+    mutationFn: (data: MealPlanInput) => createMealPlan(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["mealPlans"] });
     },
@@ -45,7 +44,7 @@ export function useUpdateMealPlan() {
       data,
     }: {
       id: number;
-      data: UpdateMealPlanInput;
+      data: MealPlanInput;
     }) => updateMealPlan(id, data),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["mealPlans"] });

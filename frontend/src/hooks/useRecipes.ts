@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateRecipeInput, UpdateRecipeInput } from "../lib/types";
+import type { RecipeInput } from "../lib/types";
 import {
   fetchRecipes,
   fetchRecipe,
@@ -26,7 +26,7 @@ export function useRecipe(id: number) {
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateRecipeInput) => createRecipe(data),
+    mutationFn: (data: RecipeInput) => createRecipe(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },
@@ -36,7 +36,7 @@ export function useCreateRecipe() {
 export function useUpdateRecipe() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateRecipeInput }) =>
+    mutationFn: ({ id, data }: { id: number; data: RecipeInput }) =>
       updateRecipe(id, data),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["recipes"] });

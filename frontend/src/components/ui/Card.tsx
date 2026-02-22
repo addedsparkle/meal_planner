@@ -1,6 +1,6 @@
 import { type HTMLAttributes } from "react";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {}
+type CardProps = HTMLAttributes<HTMLDivElement>
 
 export function Card({ className = "", children, ...props }: CardProps) {
   return (
@@ -13,7 +13,7 @@ export function Card({ className = "", children, ...props }: CardProps) {
   );
 }
 
-interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {}
+type CardHeaderProps = HTMLAttributes<HTMLDivElement>
 
 export function CardHeader({ className = "", children, ...props }: CardHeaderProps) {
   return (
@@ -26,7 +26,7 @@ export function CardHeader({ className = "", children, ...props }: CardHeaderPro
   );
 }
 
-interface CardBodyProps extends HTMLAttributes<HTMLDivElement> {}
+type CardBodyProps = HTMLAttributes<HTMLDivElement>
 
 export function CardBody({ className = "", children, ...props }: CardBodyProps) {
   return (
@@ -36,7 +36,7 @@ export function CardBody({ className = "", children, ...props }: CardBodyProps) 
   );
 }
 
-interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {}
+type CardFooterProps = HTMLAttributes<HTMLDivElement>
 
 export function CardFooter({ className = "", children, ...props }: CardFooterProps) {
   return (

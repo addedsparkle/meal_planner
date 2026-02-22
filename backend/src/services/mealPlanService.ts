@@ -17,7 +17,6 @@ interface GenerateMealPlanInput {
   name: string;
   startDate: string;
   endDate: string;
-  mealType?: string;
 }
 
 function getMealPlanWithDetails(db: AppDatabase, id: number) {
@@ -39,6 +38,7 @@ function getMealPlanWithDetails(db: AppDatabase, id: number) {
         name: day.recipe.name,
         description: day.recipe.description,
         protein: day.recipe.protein,
+        freezable: day.recipe.freezable,
       },
     })),
     mealPlanDays: undefined,
@@ -54,7 +54,7 @@ export function getAllMealPlans(db: AppDatabase) {
       id: day.id,
       dayDate: day.dayDate,
       mealType: day.mealType,
-      recipe: { id: day.recipe.id, name: day.recipe.name, protein: day.recipe.protein },
+      recipe: { id: day.recipe.id, name: day.recipe.name, protein: day.recipe.protein, freezable: day.recipe.freezable },
     })),
     mealPlanDays: undefined,
   }));
@@ -151,27 +151,43 @@ function distributeByProtein(recipeList: typeof recipes.$inferSelect[]): typeof 
   return result;
 }
 
+function recipesForMealType(allRecipes: typeof recipes.$inferSelect[], mealType: string) {
+  return allRecipes.filter((r) =>
+    (r.mealTypes ?? "dinner").split(",").map((s) => s.trim()).includes(mealType),
+  );
+}
+
 export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) {
   const allRecipes = db.select().from(recipes).all();
-  const mealType = input.mealType ?? "dinner";
 
-  // Filter to recipes that support the requested meal type
-  const eligible = allRecipes.filter((r) =>
-    (r.mealTypes ?? "dinner").split(",").includes(mealType),
-  );
-
-  if (eligible.length === 0) {
-    throw new Error(`No recipes available for meal type: ${mealType}`);
+  const dinnerRecipes = recipesForMealType(allRecipes, "dinner");
+  if (dinnerRecipes.length === 0) {
+    throw new Error("No recipes available. Add some recipes before generating a plan.");
   }
 
-  const days = getDaysBetween(input.startDate, input.endDate);
-  const distributed = distributeByProtein(eligible);
+  const lunchRecipes = recipesForMealType(allRecipes, "lunch");
+  const breakfastRecipes = recipesForMealType(allRecipes, "breakfast");
 
-  const dayEntries = days.map((dayDate, i) => ({
-    dayDate,
-    recipeId: distributed[i % distributed.length]!.id,
-    mealType,
-  }));
+  const days = getDaysBetween(input.startDate, input.endDate);
+  const distributedDinner = distributeByProtein(dinnerRecipes);
+  const distributedLunch = lunchRecipes.length > 0 ? distributeByProtein(lunchRecipes) : [];
+  const distributedBreakfast = breakfastRecipes.length > 0 ? distributeByProtein(breakfastRecipes) : [];
+
+  const dayEntries: Array<{ dayDate: string; recipeId: number; mealType: string }> = [];
+
+  days.forEach((dayDate, i) => {
+    // Breakfast: same recipe for every 3 consecutive days (bulk-cook friendly)
+    if (distributedBreakfast.length > 0) {
+      const idx = Math.floor(i / 3) % distributedBreakfast.length;
+      dayEntries.push({ dayDate, recipeId: distributedBreakfast[idx]!.id, mealType: "breakfast" });
+    }
+    // Lunch: daily rotation distributed by protein
+    if (distributedLunch.length > 0) {
+      dayEntries.push({ dayDate, recipeId: distributedLunch[i % distributedLunch.length]!.id, mealType: "lunch" });
+    }
+    // Dinner: daily rotation distributed by protein
+    dayEntries.push({ dayDate, recipeId: distributedDinner[i % distributedDinner.length]!.id, mealType: "dinner" });
+  });
 
   return createMealPlan(db, {
     name: input.name,

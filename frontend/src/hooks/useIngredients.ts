@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
-  CreateIngredientInput,
-  UpdateIngredientInput,
+  IngredientInput,
 } from "../lib/types";
 import {
   fetchIngredients,
@@ -20,7 +19,7 @@ export function useIngredients(search?: string) {
 export function useCreateIngredient() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateIngredientInput) => createIngredient(data),
+    mutationFn: (data: IngredientInput) => createIngredient(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ingredients"] });
     },
@@ -35,7 +34,7 @@ export function useUpdateIngredient() {
       data,
     }: {
       id: number;
-      data: UpdateIngredientInput;
+      data: IngredientInput;
     }) => updateIngredient(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["ingredients"] });

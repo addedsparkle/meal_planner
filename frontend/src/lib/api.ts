@@ -1,14 +1,11 @@
 import type {
   Recipe,
-  CreateRecipeInput,
-  UpdateRecipeInput,
+  RecipeInput,
   CsvImportResult,
   Ingredient,
-  CreateIngredientInput,
-  UpdateIngredientInput,
+  IngredientInput,
   MealPlan,
-  CreateMealPlanInput,
-  UpdateMealPlanInput,
+  MealPlanInput,
   GenerateMealPlanInput,
   ShoppingListResponse,
 } from "./types";
@@ -56,7 +53,7 @@ export function fetchRecipe(id: number): Promise<Recipe> {
   return apiFetch<Recipe>(`/recipes/${id}`);
 }
 
-export function createRecipe(data: CreateRecipeInput): Promise<Recipe> {
+export function createRecipe(data: RecipeInput): Promise<Recipe> {
   return apiFetch<Recipe>("/recipes", {
     method: "POST",
     body: JSON.stringify(data),
@@ -65,7 +62,7 @@ export function createRecipe(data: CreateRecipeInput): Promise<Recipe> {
 
 export function updateRecipe(
   id: number,
-  data: UpdateRecipeInput,
+  data: RecipeInput,
 ): Promise<Recipe> {
   return apiFetch<Recipe>(`/recipes/${id}`, {
     method: "PUT",
@@ -94,7 +91,7 @@ export function fetchIngredients(search?: string): Promise<Ingredient[]> {
 }
 
 export function createIngredient(
-  data: CreateIngredientInput,
+  data: IngredientInput,
 ): Promise<Ingredient> {
   return apiFetch<Ingredient>("/ingredients", {
     method: "POST",
@@ -104,7 +101,7 @@ export function createIngredient(
 
 export function updateIngredient(
   id: number,
-  data: UpdateIngredientInput,
+  data: IngredientInput,
 ): Promise<Ingredient> {
   return apiFetch<Ingredient>(`/ingredients/${id}`, {
     method: "PUT",
@@ -126,7 +123,7 @@ export function fetchMealPlan(id: number): Promise<MealPlan> {
   return apiFetch<MealPlan>(`/meal-plans/${id}`);
 }
 
-export function createMealPlan(data: CreateMealPlanInput): Promise<MealPlan> {
+export function createMealPlan(data: MealPlanInput): Promise<MealPlan> {
   return apiFetch<MealPlan>("/meal-plans", {
     method: "POST",
     body: JSON.stringify(data),
@@ -135,7 +132,7 @@ export function createMealPlan(data: CreateMealPlanInput): Promise<MealPlan> {
 
 export function updateMealPlan(
   id: number,
-  data: UpdateMealPlanInput,
+  data: MealPlanInput,
 ): Promise<MealPlan> {
   return apiFetch<MealPlan>(`/meal-plans/${id}`, {
     method: "PUT",
