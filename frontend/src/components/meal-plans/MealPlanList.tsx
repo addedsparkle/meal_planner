@@ -6,13 +6,15 @@ import { Modal } from "../ui/Modal";
 import { ErrorMessage } from "../ui/ErrorMessage";
 import { MealPlanGenerator } from "./MealPlanGenerator";
 import { MealPlanCalendar } from "./MealPlanCalendar";
+import { MealPlanEditor } from "./MealPlanEditor";
 import { useMealPlans, useDeleteMealPlan } from "../../hooks/useMealPlans";
 import type { MealPlan } from "../../lib/types";
 
 type ModalState =
   | { kind: "none" }
   | { kind: "generate" }
-  | { kind: "view"; plan: MealPlan };
+  | { kind: "view"; plan: MealPlan }
+  | { kind: "edit"; plan: MealPlan };
 
 function formatDateRange(startDate: string, endDate: string): string {
   const fmt = (d: string) =>
@@ -165,11 +167,29 @@ export function MealPlanList() {
             {formatDateRange(modal.plan.startDate, modal.plan.endDate)}
           </div>
           <MealPlanCalendar plan={modal.plan} />
-          <div className="mt-4 flex justify-end border-t border-gray-100 pt-3">
+          <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
             <Button variant="secondary" onClick={() => setModal({ kind: "none" })}>
               Close
             </Button>
+            <Button onClick={() => setModal({ kind: "edit", plan: modal.plan })}>
+              Edit Plan
+            </Button>
           </div>
+        </Modal>
+      )}
+
+      {/* Edit modal */}
+      {modal.kind === "edit" && (
+        <Modal
+          open={true}
+          onClose={() => setModal({ kind: "none" })}
+          title={`Edit: ${modal.plan.name}`}
+          size="2xl"
+        >
+          <MealPlanEditor
+            plan={modal.plan}
+            onDone={() => setModal({ kind: "none" })}
+          />
         </Modal>
       )}
     </div>

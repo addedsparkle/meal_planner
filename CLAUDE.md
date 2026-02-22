@@ -10,3 +10,4 @@ This is a monorepo with the following structure:
 
 Always use modern approaches to development.
 Use strict typing guidelines for Typescript code.
+Always add a Story for new UI components and update for changes.

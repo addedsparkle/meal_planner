@@ -6,13 +6,29 @@ import { Button } from "../ui/Button";
 import { ErrorMessage } from "../ui/ErrorMessage";
 import { useGenerateMealPlan } from "../../hooks/useMealPlans";
 
+function nextMonday(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const daysUntilMonday = (1 - day + 7) % 7 || 7;
+  d.setDate(d.getDate() + daysUntilMonday);
+  return d.toISOString().split("T")[0]!;
+}
+
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0]!;
+}
+
+function defaultName(startDate: string): string {
+  const d = new Date(startDate + "T00:00:00");
+  return `Week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`;
+}
+
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-}).refine((d) => d.endDate >= d.startDate, {
-  message: "End date must be on or after start date",
-  path: ["endDate"],
+  numDays: z.coerce.number().int().min(1, "At least 1 day").max(28, "Maximum 28 days"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -24,19 +40,21 @@ interface MealPlanGeneratorProps {
 
 export function MealPlanGenerator({ onSuccess, onCancel }: MealPlanGeneratorProps) {
   const generate = useGenerateMealPlan();
+  const start = nextMonday();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      startDate: "",
-      endDate: "",
+      name: defaultName(start),
+      startDate: start,
+      numDays: 7,
     },
   });
 
   async function onSubmit(data: FormData) {
+    const endDate = addDays(data.startDate, data.numDays - 1);
     try {
-      await generate.mutateAsync(data);
+      await generate.mutateAsync({ name: data.name, startDate: data.startDate, endDate });
       onSuccess();
     } catch {
       // error shown via generate.error
@@ -65,10 +83,12 @@ export function MealPlanGenerator({ onSuccess, onCancel }: MealPlanGeneratorProp
           error={errors.startDate?.message}
         />
         <Input
-          label="End Date"
-          type="date"
-          {...register("endDate")}
-          error={errors.endDate?.message}
+          label="Number of Days"
+          type="number"
+          min={1}
+          max={28}
+          {...register("numDays")}
+          error={errors.numDays?.message}
         />
       </div>
 
