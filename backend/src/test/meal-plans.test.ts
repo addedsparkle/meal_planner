@@ -77,7 +77,6 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(body.days[0].recipe.name).toBe("Stir Fry");
-    expect(body.days[0].recipe.servings).toBe(2);
   });
 
   it("GET /api/meal-plans/:id returns 404", async () => {

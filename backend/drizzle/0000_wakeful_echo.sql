@@ -38,11 +38,9 @@ CREATE TABLE `recipes` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
-	`servings` integer,
-	`prep_time` integer,
-	`cook_time` integer,
-	`instructions` text,
-	`metadata` text,
+	`protein` text,
+	`meal_types` text NOT NULL DEFAULT 'dinner',
+	`freezable` integer NOT NULL DEFAULT false,
 	`created_at` text,
 	`updated_at` text
 );

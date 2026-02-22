@@ -10,11 +10,9 @@ export interface Recipe {
   id: number;
   name: string;
   description: string | null;
-  servings: number | null;
-  prepTime: number | null;
-  cookTime: number | null;
-  instructions: string | null;
-  metadata: Record<string, unknown> | null;
+  protein: string | null;
+  mealTypes: string[];
+  freezable: boolean;
   createdAt: string;
   updatedAt: string;
   ingredients: RecipeIngredient[];
@@ -23,11 +21,9 @@ export interface Recipe {
 export interface CreateRecipeInput {
   name: string;
   description?: string;
-  servings?: number;
-  prepTime?: number;
-  cookTime?: number;
-  instructions?: string;
-  metadata?: Record<string, unknown>;
+  protein?: string;
+  mealTypes?: string[];
+  freezable?: boolean;
   ingredients?: {
     name: string;
     quantity?: string;
@@ -100,8 +96,14 @@ export interface ShoppingListResponse {
   items: ShoppingListItem[];
 }
 
+export interface CsvImportError {
+  row: number;
+  name: string;
+  error: string;
+}
+
 export interface CsvImportResult {
   created: number;
   skipped: number;
-  errors: string[];
+  errors: CsvImportError[];
 }

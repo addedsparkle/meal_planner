@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 interface ModalProps {
   open: boolean;
@@ -46,14 +46,14 @@ export function Modal({ open, onClose, title, children, size = "md" }: ModalProp
       {/* Panel */}
       <div
         className={[
-          "relative w-full rounded-lg bg-white shadow-xl",
+          "relative flex max-h-[90vh] w-full flex-col rounded-lg bg-white shadow-xl",
           sizeClasses[size],
         ].join(" ")}
         role="dialog"
         aria-modal="true"
       >
         {title && (
-          <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+          <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-5 py-4">
             <h2 className="text-base font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
@@ -70,7 +70,7 @@ export function Modal({ open, onClose, title, children, size = "md" }: ModalProp
             </button>
           </div>
         )}
-        <div className="px-5 py-4">{children}</div>
+        <div className="overflow-y-auto px-5 py-4">{children}</div>
       </div>
     </div>
   );

@@ -7,14 +7,15 @@ const ingredientInput = z.object({
   category: z.string().optional(),
 });
 
+export const MEAL_TYPES = ["breakfast", "lunch", "dinner"] as const;
+export type MealType = (typeof MEAL_TYPES)[number];
+
 export const createRecipeSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  servings: z.number().int().positive().optional(),
-  prepTime: z.number().int().nonnegative().optional(),
-  cookTime: z.number().int().nonnegative().optional(),
-  instructions: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  protein: z.string().optional(),
+  mealTypes: z.array(z.enum(MEAL_TYPES)).min(1).default(["dinner"]),
+  freezable: z.boolean().default(false),
   ingredients: z.array(ingredientInput).optional(),
 });
 

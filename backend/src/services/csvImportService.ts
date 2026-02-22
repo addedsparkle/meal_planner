@@ -1,15 +1,15 @@
 import { parse } from "csv-parse/sync";
 import type { AppDatabase } from "../db/index.js";
 import { createRecipe } from "./recipeService.js";
+import { MEAL_TYPES } from "../types/recipe.js";
 import type { CreateRecipeInput, IngredientInput } from "../types/recipe.js";
 
 interface CsvRow {
   name?: string;
   description?: string;
-  servings?: string;
-  prep_time?: string;
-  cook_time?: string;
-  instructions?: string;
+  protein?: string;
+  meal_types?: string;
+  freezable?: string;
   ingredients?: string;
 }
 
@@ -21,7 +21,7 @@ interface ImportResult {
 
 function parseIngredientString(raw: string): IngredientInput[] {
   return raw
-    .split("|")
+    .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
     .map((entry) => {
@@ -29,8 +29,16 @@ function parseIngredientString(raw: string): IngredientInput[] {
       if (match) {
         return { name: match[1]!.trim(), quantity: match[2]!.trim() };
       }
-      return { name: entry };
+      return { name: entry, quantity: "1" };
     });
+}
+
+function parseMealTypes(raw: string | undefined): typeof MEAL_TYPES[number][] {
+  if (!raw) return ["dinner"];
+  const parsed = raw.split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter((s): s is typeof MEAL_TYPES[number] => MEAL_TYPES.includes(s as typeof MEAL_TYPES[number]));
+  return parsed.length > 0 ? parsed : ["dinner"];
 }
 
 export async function importRecipesFromCsv(
@@ -47,14 +55,10 @@ export async function importRecipesFromCsv(
 
   for (let i = 0; i < records.length; i++) {
     const row = records[i]!;
-    const rowNum = i + 2; // 1-indexed + header row
+    const rowNum = i + 2;
 
     if (!row.name?.trim()) {
-      result.errors.push({
-        row: rowNum,
-        name: row.name ?? "",
-        error: "Missing recipe name",
-      });
+      result.errors.push({ row: rowNum, name: row.name ?? "", error: "Missing recipe name" });
       result.skipped++;
       continue;
     }
@@ -63,13 +67,10 @@ export async function importRecipesFromCsv(
       const input: CreateRecipeInput = {
         name: row.name.trim(),
         description: row.description?.trim() || undefined,
-        servings: row.servings ? Number(row.servings) : undefined,
-        prepTime: row.prep_time ? Number(row.prep_time) : undefined,
-        cookTime: row.cook_time ? Number(row.cook_time) : undefined,
-        instructions: row.instructions?.trim() || undefined,
-        ingredients: row.ingredients
-          ? parseIngredientString(row.ingredients)
-          : undefined,
+        protein: row.protein?.trim() || undefined,
+        mealTypes: parseMealTypes(row.meal_types),
+        freezable: row.freezable?.trim().toLowerCase() === "true" || row.freezable?.trim() === "1",
+        ingredients: row.ingredients ? parseIngredientString(row.ingredients) : undefined,
       };
 
       await createRecipe(db, input);

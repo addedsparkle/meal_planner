@@ -18,10 +18,9 @@ describe("Recipes API", () => {
       payload: {
         name: "Pasta Carbonara",
         description: "Classic Italian pasta",
-        servings: 4,
-        prepTime: 10,
-        cookTime: 20,
-        instructions: "Cook pasta. Add sauce.",
+        protein: "pork",
+        mealTypes: ["dinner"],
+        freezable: false,
         ingredients: [
           { name: "Pasta", quantity: "500g" },
           { name: "Eggs", quantity: "3" },
@@ -31,7 +30,9 @@ describe("Recipes API", () => {
     expect(res.statusCode).toBe(201);
     const body = res.json();
     expect(body.name).toBe("Pasta Carbonara");
-    expect(body.servings).toBe(4);
+    expect(body.protein).toBe("pork");
+    expect(body.mealTypes).toEqual(["dinner"]);
+    expect(body.freezable).toBe(false);
     expect(body.ingredients).toHaveLength(2);
     expect(body.ingredients[0].name).toBe("pasta");
     expect(body.ingredients[0].quantity).toBe("500g");
@@ -91,18 +92,18 @@ describe("Recipes API", () => {
     const created = await app.inject({
       method: "POST",
       url: "/api/recipes",
-      payload: { name: "Original", servings: 2 },
+      payload: { name: "Original", protein: "chicken" },
     });
     const id = created.json().id;
 
     const res = await app.inject({
       method: "PUT",
       url: `/api/recipes/${id}`,
-      payload: { name: "Updated", servings: 4 },
+      payload: { name: "Updated", protein: "beef" },
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().name).toBe("Updated");
-    expect(res.json().servings).toBe(4);
+    expect(res.json().protein).toBe("beef");
   });
 
   it("PUT /api/recipes/:id updates ingredients", async () => {
@@ -167,8 +168,8 @@ describe("Recipes API", () => {
   it("POST /api/recipes/import imports from CSV", async () => {
     const app = await getApp();
     const csv = `name,description,servings,ingredients
-Tacos,Delicious tacos,4,beef (500g)|tortilla (8)|cheese (200g)
-Soup,Warm soup,2,chicken (300g)|carrot (3)`;
+Tacos,Delicious tacos,4,"beef (500g),tortilla (8),cheese (200g)"
+Soup,Warm soup,2,"chicken (300g),carrot"`;
 
     const form = new FormData();
     form.append("file", new Blob([csv], { type: "text/csv" }), "recipes.csv");
