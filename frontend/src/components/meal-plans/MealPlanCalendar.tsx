@@ -100,52 +100,47 @@ export function MealPlanCalendar({ plan }: MealPlanCalendarProps) {
       {/* ── Desktop: meal-type rows × day columns (≥ 800px) ── */}
       <div className="hidden min-[800px]:flex flex-col gap-6">
         {weeks.map((weekDates, wi) => (
-          <div key={wi} className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr>
-                  <th className="w-20 py-1 pr-3 text-left text-xs font-medium uppercase tracking-wide text-gray-400">
-                    {wi === 0 ? "Meal" : ""}
-                  </th>
-                  {weekDates.map((date) => (
-                    <th key={date} className="whitespace-nowrap px-2 py-1 text-left text-xs font-semibold text-gray-600">
-                      {formatDate(date)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mealTypes.map((mealType) => (
-                  <tr key={mealType}>
-                    <td className={`whitespace-nowrap py-2 pr-3 text-xs font-semibold ${MEAL_LABEL_COLORS[mealType]}`}>
-                      {MEAL_LABELS[mealType]}
-                    </td>
-                    {weekDates.map((date) => {
-                      const meal = dayMap.get(date)?.[mealType];
-                      return (
-                        <td key={date} className="px-1 py-1">
-                          {meal ? (
-                            <div className={`rounded border px-2 py-1.5 ${MEAL_COLORS[mealType]}`}>
-                              <p className="font-medium leading-tight text-gray-800">{meal.recipe.name}</p>
-                              {meal.recipe.protein && (
-                                <p className="mt-0.5 text-xs capitalize text-gray-500">{meal.recipe.protein}</p>
-                              )}
-                              {meal.recipe.freezable && (
-                                <Snowflake className="mt-0.5 h-3 w-3 text-cyan-500" />
-                              )}
-                            </div>
-                          ) : (
-                            <div className="rounded border border-dashed border-gray-200 px-2 py-1.5 text-xs italic text-gray-300">
-                              —
-                            </div>
+          <div key={wi} className="grid grid-cols-8 gap-1">
+            {/* Header row */}
+            <div className="py-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+              {wi === 0 ? "Meal" : ""}
+            </div>
+            {weekDates.map((date) => (
+              <div key={date} className="py-1 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                {formatDate(date)}
+              </div>
+            ))}
+
+            {/* Meal rows */}
+            {mealTypes.map((mealType) => (
+              <>
+                <div key={`${mealType}-label`} className={`flex items-center py-1 text-xs font-semibold whitespace-nowrap ${MEAL_LABEL_COLORS[mealType]}`}>
+                  {MEAL_LABELS[mealType]}
+                </div>
+                {weekDates.map((date) => {
+                  const meal = dayMap.get(date)?.[mealType];
+                  return (
+                    <div key={date} className="py-1 flex flex-col">
+                      {meal ? (
+                        <div className={`flex-1 rounded border px-2 py-1.5 ${MEAL_COLORS[mealType]}`}>
+                          <p className="text-sm font-medium leading-tight text-gray-800">{meal.recipe.name}</p>
+                          {meal.recipe.protein && (
+                            <p className="mt-0.5 text-xs capitalize text-gray-500">{meal.recipe.protein}</p>
                           )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {meal.recipe.freezable && (
+                            <Snowflake className="mt-0.5 h-3 w-3 text-cyan-500" />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex-1 rounded border border-dashed border-gray-200 px-2 py-1.5 text-xs italic text-gray-300">
+                          —
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            ))}
           </div>
         ))}
       </div>
