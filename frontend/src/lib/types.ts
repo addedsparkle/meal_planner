@@ -111,14 +111,3 @@ export interface ShoppingListResponse {
   items: ShoppingListItem[];
 }
 
-export interface CsvImportError {
-  row: number;
-  name: string;
-  error: string;
-}
-
-export interface CsvImportResult {
-  created: number;
-  skipped: number;
-  errors: CsvImportError[];
-}

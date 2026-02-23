@@ -1,7 +1,6 @@
 import type {
   Recipe,
   RecipeInput,
-  CsvImportResult,
   Ingredient,
   IngredientInput,
   MealPlan,
@@ -74,14 +73,6 @@ export function deleteRecipe(id: number): Promise<void> {
   return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
 }
 
-export function importRecipesCsv(file: File): Promise<CsvImportResult> {
-  const formData = new FormData();
-  formData.append("file", file);
-  return apiFetch<CsvImportResult>("/recipes/import", {
-    method: "POST",
-    body: formData,
-  });
-}
 
 // ── Ingredients ──────────────────────────────────────────────────────
 

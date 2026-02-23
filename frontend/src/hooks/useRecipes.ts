@@ -6,7 +6,6 @@ import {
   createRecipe,
   updateRecipe,
   deleteRecipe,
-  importRecipesCsv,
 } from "../lib/api";
 
 export function useRecipes() {
@@ -56,13 +55,3 @@ export function useDeleteRecipe() {
   });
 }
 
-export function useImportRecipesCsv() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (file: File) => importRecipesCsv(file),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["recipes"] });
-      void queryClient.invalidateQueries({ queryKey: ["ingredients"] });
-    },
-  });
-}

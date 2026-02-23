@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Plus, Upload } from "lucide-react";
+import { Plus } from "lucide-react";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDetail } from "./RecipeDetail";
 import { RecipeForm } from "./RecipeForm";
-import { CSVImporter } from "./CSVImporter";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
@@ -15,8 +14,7 @@ type ModalState =
   | { kind: "none" }
   | { kind: "view"; recipe: Recipe }
   | { kind: "create" }
-  | { kind: "edit"; recipe: Recipe }
-  | { kind: "import" };
+  | { kind: "edit"; recipe: Recipe };
 
 export function RecipeList() {
   const { data: recipes, isLoading, error } = useRecipes();
@@ -61,32 +59,20 @@ export function RecipeList() {
             <span className="ml-2 text-sm font-normal text-gray-400">({recipes.length})</span>
           )}
         </h2>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setModal({ kind: "import" })}>
-            <Upload className="h-4 w-4" />
-            Import CSV
-          </Button>
-          <Button size="sm" onClick={() => setModal({ kind: "create" })}>
-            <Plus className="h-4 w-4" />
-            New Recipe
-          </Button>
-        </div>
+        <Button size="sm" onClick={() => setModal({ kind: "create" })}>
+          <Plus className="h-4 w-4" />
+          New Recipe
+        </Button>
       </div>
 
       {/* Empty state */}
       {recipes?.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
           <p className="text-gray-500">No recipes yet. Add your first recipe to get started.</p>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setModal({ kind: "import" })}>
-              <Upload className="h-4 w-4" />
-              Import CSV
-            </Button>
-            <Button onClick={() => setModal({ kind: "create" })}>
-              <Plus className="h-4 w-4" />
-              Create Recipe
-            </Button>
-          </div>
+          <Button onClick={() => setModal({ kind: "create" })}>
+            <Plus className="h-4 w-4" />
+            Create Recipe
+          </Button>
         </div>
       )}
 
@@ -133,18 +119,6 @@ export function RecipeList() {
       <Modal open={modal.kind === "edit"} onClose={closeModal} title="Edit Recipe" size="xl">
         {modal.kind === "edit" && (
           <RecipeForm recipe={modal.recipe} onSuccess={closeModal} onCancel={closeModal} />
-        )}
-      </Modal>
-
-      {/* Import modal */}
-      <Modal
-        open={modal.kind === "import"}
-        onClose={closeModal}
-        title="Import Recipes from CSV"
-        size="md"
-      >
-        {modal.kind === "import" && (
-          <CSVImporter onSuccess={closeModal} onCancel={closeModal} />
         )}
       </Modal>
     </>
