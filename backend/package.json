@@ -10,6 +10,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/db/migrate.ts",
     "import:csv": "tsx src/scripts/importCsv.ts",
+    "export:csv": "tsx src/scripts/exportCsv.ts",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
     "test:watch": "vitest"

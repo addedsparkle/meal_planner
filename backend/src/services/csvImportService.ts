@@ -1,14 +1,15 @@
 import { parse } from "csv-parse/sync";
 import type { AppDatabase } from "../db/index.js";
 import { createRecipe } from "./recipeService.js";
-import { MEAL_TYPES } from "../types/recipe.js";
-import type { CreateRecipeInput, IngredientInput } from "../types/recipe.js";
+import { MEAL_TYPES, SUITABLE_DAYS } from "../types/recipe.js";
+import type { CreateRecipeInput, IngredientInput, SuitableDays } from "../types/recipe.js";
 
 interface CsvRow {
   name?: string;
   description?: string;
   protein?: string;
   meal_types?: string;
+  suitable_days?: string;
   freezable?: string;
   ingredients?: string;
 }
@@ -27,10 +28,24 @@ function parseIngredientString(raw: string): IngredientInput[] {
     .map((entry) => {
       const match = entry.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
       if (match) {
-        return { name: match[1]!.trim(), quantity: match[2]!.trim() };
+        const inner = match[2]!.trim();
+        const pipeIdx = inner.indexOf("|");
+        if (pipeIdx !== -1) {
+          return {
+            name: match[1]!.trim(),
+            quantity: inner.slice(0, pipeIdx).trim() || undefined,
+            units: inner.slice(pipeIdx + 1).trim() || undefined,
+          };
+        }
+        return { name: match[1]!.trim(), quantity: inner };
       }
-      return { name: entry, quantity: "1" };
+      return { name: entry };
     });
+}
+
+function parseSuitableDays(raw: string | undefined): SuitableDays {
+  const val = raw?.trim().toLowerCase();
+  return (SUITABLE_DAYS as readonly string[]).includes(val ?? "") ? val as SuitableDays : "any";
 }
 
 function parseMealTypes(raw: string | undefined): typeof MEAL_TYPES[number][] {
@@ -69,7 +84,7 @@ export async function importRecipesFromCsv(
         description: row.description?.trim() || undefined,
         protein: row.protein?.trim() || undefined,
         mealTypes: parseMealTypes(row.meal_types),
-        suitableDays: "any",
+        suitableDays: parseSuitableDays(row.suitable_days),
         freezable: row.freezable?.trim().toLowerCase() === "true" || row.freezable?.trim() === "1",
         ingredients: row.ingredients ? parseIngredientString(row.ingredients) : undefined,
       };
