@@ -1,0 +1,22 @@
+[Unit]
+Description=Meal Planner API
+After=network.target
+
+[Service]
+Type=simple
+User=meal-planner
+Group=meal-planner
+WorkingDirectory=/opt/meal-planner/backend
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=meal-planner-api
+
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DATABASE_URL=/opt/meal-planner/data/meal_planner.db
+
+[Install]
+WantedBy=multi-user.target
