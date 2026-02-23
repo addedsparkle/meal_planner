@@ -44,8 +44,10 @@ export function RecipeDetail({ recipe, onEdit, onClose }: RecipeDetailProps) {
             {recipe.ingredients.map((ing) => (
               <li key={ing.id} className="flex flex-wrap gap-1.5 text-sm">
                 <span className="font-medium text-gray-800">{ing.name}</span>
-                {ing.quantity && (
-                  <span className="text-gray-500">&mdash; {ing.quantity}</span>
+                {(ing.quantity || ing.units) && (
+                  <span className="text-gray-500">
+                    &mdash;{ing.quantity && ` ${ing.quantity}`}{ing.units && ing.units !== "count" && ` ${ing.units}`}
+                  </span>
                 )}
                 {ing.notes && (
                   <span className="italic text-gray-400">({ing.notes})</span>

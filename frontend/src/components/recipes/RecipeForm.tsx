@@ -10,6 +10,14 @@ import type { Recipe } from "../../lib/types";
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner"] as const;
 
+const UNITS = [
+  "count",
+  "g", "kg", "ml", "l",
+  "tsp", "tbsp", "cup",
+  "piece", "slice", "clove", "bunch", "sprig", "handful", "can",
+  "pinch", "dash",
+] as const;
+
 const SUITABLE_DAYS_OPTIONS = [
   { value: "any", label: "Any day" },
   { value: "weekday", label: "Weekdays only (batch-cook)" },
@@ -19,6 +27,7 @@ const SUITABLE_DAYS_OPTIONS = [
 const ingredientSchema = z.object({
   name: z.string().min(1, "Required"),
   quantity: z.string().optional(),
+  units: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -70,6 +79,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
           ingredients: recipe.ingredients.map((ing) => ({
             name: ing.name,
             quantity: ing.quantity ?? "",
+            units: ing.units ?? "",
             notes: ing.notes ?? "",
           })),
         }
@@ -100,7 +110,9 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
       mealTypes: data.mealTypes,
       suitableDays: data.suitableDays,
       freezable: data.freezable,
-      ingredients: data.ingredients.filter((i) => i.name.trim() !== ""),
+      ingredients: data.ingredients
+        .filter((i) => i.name.trim() !== "")
+        .map((i) => ({ ...i, units: i.units || undefined })),
     };
 
     try {
@@ -197,7 +209,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
             type="button"
             size="sm"
             variant="secondary"
-            onClick={() => append({ name: "", quantity: "", notes: "" })}
+            onClick={() => append({ name: "", quantity: "", units: "", notes: "" })}
           >
             <Plus className="h-3.5 w-3.5" />
             Add
@@ -209,9 +221,10 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
         )}
 
         {fields.length > 0 && (
-          <div className="mb-1 grid grid-cols-[1fr_6rem_7rem_1.75rem] gap-2 text-xs font-medium text-gray-500">
+          <div className="mb-1 grid grid-cols-[1fr_5rem_5.5rem_7rem_1.75rem] gap-2 text-xs font-medium text-gray-500">
             <span>Name</span>
             <span>Quantity</span>
+            <span>Units</span>
             <span>Notes</span>
             <span />
           </div>
@@ -223,7 +236,7 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
             return (
               <div
                 key={field.id}
-                className="grid grid-cols-[1fr_6rem_7rem_1.75rem] items-start gap-2"
+                className="grid grid-cols-[1fr_5rem_5.5rem_7rem_1.75rem] items-start gap-2"
               >
                 <div>
                   <input
@@ -237,9 +250,18 @@ export function RecipeForm({ recipe, onSuccess, onCancel }: RecipeFormProps) {
                 </div>
                 <input
                   {...register(`ingredients.${index}.quantity`)}
-                  placeholder="2 tbsp"
+                  placeholder="2"
                   className={`w-full ${ingFieldClass}`}
                 />
+                <select
+                  {...register(`ingredients.${index}.units`)}
+                  className={`w-full ${ingFieldClass}`}
+                >
+                  <option value="">—</option>
+                  {UNITS.map((u) => (
+                    <option key={u} value={u}>{u === "count" ? "count (no unit)" : u}</option>
+                  ))}
+                </select>
                 <input
                   {...register(`ingredients.${index}.notes`)}
                   placeholder="optional"

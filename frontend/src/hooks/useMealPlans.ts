@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { shoppingListQueryKey } from "./useShoppingList";
 import type {
   MealPlanInput,
   GenerateMealPlanInput,
@@ -48,9 +49,8 @@ export function useUpdateMealPlan() {
     }) => updateMealPlan(id, data),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["mealPlans"] });
-      void queryClient.invalidateQueries({
-        queryKey: ["mealPlan", variables.id],
-      });
+      void queryClient.invalidateQueries({ queryKey: ["mealPlan", variables.id] });
+      void queryClient.invalidateQueries({ queryKey: shoppingListQueryKey(variables.id) });
     },
   });
 }
@@ -59,8 +59,9 @@ export function useDeleteMealPlan() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteMealPlan(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: ["mealPlans"] });
+      void queryClient.invalidateQueries({ queryKey: shoppingListQueryKey(id) });
     },
   });
 }

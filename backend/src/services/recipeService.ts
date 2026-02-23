@@ -32,6 +32,7 @@ function shapeRecipe(recipe: typeof recipes.$inferSelect, ris: Array<{
       id: ri.ingredient.id,
       name: ri.ingredient.name,
       category: ri.ingredient.category,
+      units: ri.ingredient.units,
       quantity: ri.quantity,
       notes: ri.notes,
     })),
@@ -46,11 +47,19 @@ async function upsertIngredient(db: AppDatabase, input: IngredientInput): Promis
     .where(eq(ingredients.name, normalized))
     .get();
 
-  if (existing) return existing.id;
+  if (existing) {
+    if (input.units !== undefined) {
+      db.update(ingredients)
+        .set({ units: input.units })
+        .where(eq(ingredients.id, existing.id))
+        .run();
+    }
+    return existing.id;
+  }
 
   return db
     .insert(ingredients)
-    .values({ name: normalized, category: input.category ?? null })
+    .values({ name: normalized, category: input.category ?? null, units: input.units ?? null })
     .returning()
     .get().id;
 }

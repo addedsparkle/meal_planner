@@ -2,6 +2,7 @@ export interface RecipeIngredient {
   id: number;
   name: string;
   category: string | null;
+  units: string | null;
   quantity: string | null;
   notes: string | null;
 }
@@ -33,6 +34,7 @@ export interface RecipeInput {
     quantity?: string;
     notes?: string;
     category?: string;
+    units?: string;
   }[];
 }
 
@@ -100,6 +102,7 @@ export interface ShoppingListItem {
   ingredientId: number;
   name: string;
   category: string | null;
+  units: string | null;
   quantities: ShoppingListQuantity[];
 }
 

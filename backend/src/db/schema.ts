@@ -26,6 +26,7 @@ export const ingredients = sqliteTable("ingredients", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
   category: text("category"),
+  units: text("units"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });
 

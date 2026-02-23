@@ -12,28 +12,31 @@ function formatDateRange(startDate: string, endDate: string): string {
   return `${fmt(startDate)} – ${fmt(endDate)}`;
 }
 
-function quantitySummary(quantities: ShoppingListItem["quantities"]): string {
-  return quantities
+function formatQuantities(item: ShoppingListItem): string {
+  if (item.units) {
+    const parsed = item.quantities.map((q) => (q.quantity !== null ? Number(q.quantity) : NaN));
+    if (parsed.every((n) => !isNaN(n) && isFinite(n))) {
+      const total = parsed.reduce((sum, n) => sum + n, 0);
+      const totalStr = Number.isInteger(total) ? total.toString() : parseFloat(total.toFixed(2)).toString();
+      const recipes = item.quantities.map((q) => q.recipeName).join(", ");
+      const unitSuffix = item.units !== "count" ? ` ${item.units}` : "";
+      return `${totalStr}${unitSuffix} — ${recipes}`;
+    }
+  }
+  return item.quantities
     .map((q) => (q.quantity ? `${q.quantity} (${q.recipeName})` : q.recipeName))
     .join(" · ");
 }
 
 export function ShoppingListPage() {
   const { data: mealPlans = [], isLoading: plansLoading, error: plansError } = useMealPlans();
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
 
-  const { data: shoppingList, isLoading: listLoading, error: listError } = useShoppingList(
-    Array.from(selectedIds),
-  );
+  const { data: shoppingList, isLoading: listLoading, error: listError } = useShoppingList(selectedId);
 
   function togglePlan(id: number) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setSelectedId((prev) => (prev === id ? null : id));
     setCheckedItems(new Set());
   }
 
@@ -99,7 +102,7 @@ export function ShoppingListPage() {
       {/* Plan selector */}
       <div className="flex flex-wrap gap-2">
         {mealPlans.map((plan) => {
-          const selected = selectedIds.has(plan.id);
+          const selected = selectedId === plan.id;
           return (
             <button
               key={plan.id}
@@ -121,7 +124,7 @@ export function ShoppingListPage() {
       </div>
 
       {/* No plan selected */}
-      {selectedIds.size === 0 && (
+      {selectedId === null && (
         <div className="rounded-lg border-2 border-dashed border-gray-200 py-12 text-center">
           <ShoppingCart className="mx-auto h-8 w-8 text-gray-300" />
           <p className="mt-2 text-sm text-gray-400">
@@ -130,7 +133,7 @@ export function ShoppingListPage() {
         </div>
       )}
 
-      {selectedIds.size > 0 && listLoading && (
+      {selectedId !== null && listLoading && (
         <div className="flex h-32 items-center justify-center">
           <Spinner size="lg" />
         </div>
@@ -191,9 +194,12 @@ export function ShoppingListPage() {
                           }`}
                         >
                           {item.name}
+                          {item.units && item.units !== "count" && (
+                            <span className="ml-1 text-xs font-normal text-gray-400">({item.units})</span>
+                          )}
                         </p>
                         <p className="mt-0.5 text-xs text-gray-400">
-                          {quantitySummary(item.quantities)}
+                          {formatQuantities(item)}
                         </p>
                       </div>
                     </button>

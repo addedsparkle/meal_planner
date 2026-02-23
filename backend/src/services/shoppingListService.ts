@@ -6,6 +6,7 @@ interface ShoppingListItem {
   ingredientId: number;
   name: string;
   category: string | null;
+  units: string | null;
   quantities: Array<{
     quantity: string | null;
     recipeName: string;
@@ -47,6 +48,7 @@ export function getShoppingList(db: AppDatabase, mealPlanIds: number[]): Shoppin
           ingredientId: ri.ingredient.id,
           name: ri.ingredient.name,
           category: ri.ingredient.category,
+          units: ri.ingredient.units,
           quantities: [entry],
         });
       }

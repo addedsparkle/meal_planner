@@ -5,6 +5,7 @@ const ingredientInput = z.object({
   quantity: z.string().optional(),
   notes: z.string().optional(),
   category: z.string().optional(),
+  units: z.string().optional(),
 });
 
 export const MEAL_TYPES = ["breakfast", "lunch", "dinner"] as const;

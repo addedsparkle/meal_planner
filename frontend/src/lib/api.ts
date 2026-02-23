@@ -156,10 +156,9 @@ export function generateMealPlan(
 // ── Shopping List ────────────────────────────────────────────────────
 
 export function fetchShoppingList(
-  mealPlanIds: number[],
+  mealPlanId: number,
 ): Promise<ShoppingListResponse> {
-  const params = mealPlanIds.join(",");
   return apiFetch<ShoppingListResponse>(
-    `/shopping-list?mealPlanId=${params}`,
+    `/shopping-list?mealPlanId=${mealPlanId}`,
   );
 }

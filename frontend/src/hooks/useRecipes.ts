@@ -40,9 +40,8 @@ export function useUpdateRecipe() {
       updateRecipe(id, data),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["recipes"] });
-      void queryClient.invalidateQueries({
-        queryKey: ["recipe", variables.id],
-      });
+      void queryClient.invalidateQueries({ queryKey: ["recipe", variables.id] });
+      void queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
   });
 }

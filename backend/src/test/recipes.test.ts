@@ -133,6 +133,30 @@ describe("Recipes API", () => {
     expect(res.json().ingredients[0].name).toBe("spinach");
   });
 
+  it("PUT /api/recipes/:id updates ingredient units on existing ingredient", async () => {
+    const app = await getApp();
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: {
+        name: "Scrambled Eggs",
+        ingredients: [{ name: "eggs", quantity: "3" }],
+      },
+    });
+    expect(created.json().ingredients[0].units).toBeNull();
+    const id = created.json().id;
+
+    const res = await app.inject({
+      method: "PUT",
+      url: `/api/recipes/${id}`,
+      payload: {
+        ingredients: [{ name: "eggs", quantity: "3", units: "count" }],
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().ingredients[0].units).toBe("count");
+  });
+
   it("PUT /api/recipes/:id returns 404 for missing recipe", async () => {
     const app = await getApp();
     const res = await app.inject({

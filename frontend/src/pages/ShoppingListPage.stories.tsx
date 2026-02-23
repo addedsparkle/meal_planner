@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ShoppingListPage } from "./ShoppingListPage";
+import { shoppingListQueryKey } from "../hooks/useShoppingList";
 import type { MealPlan, ShoppingListResponse } from "../lib/types";
 
 const mockPlans: MealPlan[] = [
@@ -29,60 +30,67 @@ const mockShoppingList: ShoppingListResponse = {
       ingredientId: 1,
       name: "chicken breast",
       category: "meat",
+      units: "g",
       quantities: [
-        { quantity: "400g", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
-        { quantity: "300g", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
+        { quantity: "400", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
+        { quantity: "300", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
       ],
     },
     {
       ingredientId: 2,
       name: "beef mince",
       category: "meat",
+      units: "g",
       quantities: [
-        { quantity: "500g", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
+        { quantity: "500", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
       ],
     },
     {
       ingredientId: 3,
       name: "broccoli",
       category: "vegetables",
+      units: "g",
       quantities: [
-        { quantity: "200g", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
+        { quantity: "200", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
       ],
     },
     {
       ingredientId: 4,
       name: "cherry tomatoes",
       category: "vegetables",
+      units: "g",
       quantities: [
-        { quantity: "250g", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
-        { quantity: "200g", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
+        { quantity: "250", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
+        { quantity: "200", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
       ],
     },
     {
       ingredientId: 5,
       name: "soy sauce",
       category: "condiments",
+      units: "tbsp",
       quantities: [
-        { quantity: "3 tbsp", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
+        { quantity: "3", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
       ],
     },
     {
       ingredientId: 6,
       name: "olive oil",
       category: "condiments",
+      units: "tbsp",
       quantities: [
-        { quantity: "2 tbsp", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
-        { quantity: "1 tbsp", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
+        { quantity: "2", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
+        { quantity: "1", recipeName: "Chicken Caesar Salad", dayDate: "2026-03-05" },
       ],
     },
     {
       ingredientId: 7,
       name: "garlic",
       category: null,
+      units: "clove",
       quantities: [
-        { quantity: "3 cloves", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
-        { quantity: "2 cloves", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
+        { quantity: "3", recipeName: "Chicken Stir Fry", dayDate: "2026-03-03" },
+        { quantity: "2", recipeName: "Beef Tacos", dayDate: "2026-03-04" },
       ],
     },
   ],
@@ -95,7 +103,7 @@ function makeDecorator(plans: MealPlan[], list?: ShoppingListResponse) {
     });
     queryClient.setQueryData(["mealPlans"], plans);
     if (list) {
-      queryClient.setQueryData(["shoppingList", list.mealPlanIds], list);
+      queryClient.setQueryData(shoppingListQueryKey(list.mealPlanIds[0]!), list);
     }
     return (
       <QueryClientProvider client={queryClient}>

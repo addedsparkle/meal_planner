@@ -13,10 +13,10 @@ const base: Recipe = {
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
   ingredients: [
-    { id: 1, name: "chicken breast", category: null, quantity: "400g", notes: null },
-    { id: 2, name: "broccoli", category: null, quantity: "200g", notes: null },
-    { id: 3, name: "soy sauce", category: null, quantity: "3 tbsp", notes: null },
-    { id: 4, name: "garlic", category: null, quantity: "2 cloves", notes: "minced" },
+    { id: 1, name: "chicken breast", category: null, units: "g", quantity: "400", notes: null },
+    { id: 2, name: "broccoli", category: null, units: "g", quantity: "200", notes: null },
+    { id: 3, name: "soy sauce", category: null, units: "tbsp", quantity: "3", notes: null },
+    { id: 4, name: "garlic", category: null, units: "clove", quantity: "2", notes: "minced" },
   ],
 };
 
@@ -73,9 +73,9 @@ export const IngredientWithNotes: Story = {
     recipe: {
       ...base,
       ingredients: [
-        { id: 1, name: "steak", category: null, quantity: "2 pieces", notes: "room temperature" },
-        { id: 2, name: "mushrooms", category: null, quantity: "200g", notes: "sliced" },
-        { id: 3, name: "rosemary", category: null, quantity: "2 sprigs", notes: "fresh" },
+        { id: 1, name: "steak", category: null, units: "piece", quantity: "2", notes: "room temperature" },
+        { id: 2, name: "mushrooms", category: null, units: "g", quantity: "200", notes: "sliced" },
+        { id: 3, name: "rosemary", category: null, units: "sprig", quantity: "2", notes: "fresh" },
       ],
     },
   },
