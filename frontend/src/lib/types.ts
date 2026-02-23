@@ -90,11 +90,17 @@ export interface GenerateMealPlanInput {
   endDate: string;
 }
 
+export interface ShoppingListQuantity {
+  quantity: string | null;
+  recipeName: string;
+  dayDate: string;
+}
+
 export interface ShoppingListItem {
   ingredientId: number;
   name: string;
   category: string | null;
-  quantities: string[];
+  quantities: ShoppingListQuantity[];
 }
 
 export interface ShoppingListResponse {
