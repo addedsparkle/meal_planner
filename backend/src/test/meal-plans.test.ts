@@ -459,6 +459,48 @@ describe("Meal Plans API", () => {
     expect(res.json().lastUsedAt).toBeNull();
   });
 
+  it("POST /api/meal-plans/generate prefers least-recently-used recipes", async () => {
+    const app = await getApp();
+
+    // Create two dinner recipes
+    const recentRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Recent Recipe", mealTypes: ["dinner"] },
+    });
+    const recentId = recentRes.json().id;
+
+    const oldRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Old Recipe", mealTypes: ["dinner"] },
+    });
+    const oldId = oldRes.json().id;
+
+    // Use "Recent Recipe" in a plan ending 2026-10-20
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Previous Plan",
+        startDate: "2026-10-20",
+        endDate: "2026-10-20",
+        days: [{ dayDate: "2026-10-20", recipeId: recentId }],
+      },
+    });
+
+    // Generate a new 2-day plan — "Old Recipe" (never used) should appear on day 1
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "New Plan", startDate: "2026-10-21", endDate: "2026-10-22" },
+    });
+    expect(res.statusCode).toBe(201);
+    const dinners = res.json().days.filter((d: { mealType: string }) => d.mealType === "dinner");
+    expect(dinners[0].recipe.id).toBe(oldId);
+    expect(dinners[1].recipe.id).toBe(recentId);
+  });
+
   it("editing a meal plan to remove a recipe recomputes lastUsedAt from remaining plans", async () => {
     const app = await getApp();
     const recipe = await createTestRecipe(app, "Stew");

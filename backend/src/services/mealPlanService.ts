@@ -173,23 +173,26 @@ function getDaysBetween(start: string, end: string): string[] {
   return days;
 }
 
+function sortByLRU(recipeList: typeof recipes.$inferSelect[]): typeof recipes.$inferSelect[] {
+  return [...recipeList].sort((a, b) => {
+    if (a.lastUsedAt === null && b.lastUsedAt === null) return 0;
+    if (a.lastUsedAt === null) return -1;
+    if (b.lastUsedAt === null) return 1;
+    return a.lastUsedAt.localeCompare(b.lastUsedAt);
+  });
+}
+
 // Interleave recipes by protein so the same protein doesn't repeat on consecutive days.
-// Recipes without a protein are spread evenly among the gaps.
+// Input is already sorted LRU (oldest/null first) — preserve that order within each group.
 function distributeByProtein(recipeList: typeof recipes.$inferSelect[]): typeof recipes.$inferSelect[] {
+  // Input is already sorted LRU (oldest/null first) — preserve that order within each group
   const groups = new Map<string, typeof recipes.$inferSelect[]>();
   for (const recipe of recipeList) {
     const key = recipe.protein ?? "other";
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(recipe);
   }
-  // Shuffle within each group
-  for (const group of groups.values()) {
-    for (let i = group.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [group[i], group[j]] = [group[j]!, group[i]!];
-    }
-  }
-  // Round-robin across protein groups
+  // Round-robin across protein groups, preserving LRU order within each group
   const result: typeof recipes.$inferSelect[] = [];
   const groupArrays = [...groups.values()];
   const maxLen = Math.max(...groupArrays.map((g) => g.length));
@@ -219,8 +222,8 @@ export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) 
   const breakfastRecipes = recipesForMealType(allRecipes, "breakfast");
 
   const days = getDaysBetween(input.startDate, input.endDate);
-  const distributedDinner = distributeByProtein(dinnerRecipes);
-  const distributedLunch = lunchRecipes.length > 0 ? distributeByProtein(lunchRecipes) : [];
+  const distributedDinner = distributeByProtein(sortByLRU(dinnerRecipes));
+  const distributedLunch = lunchRecipes.length > 0 ? distributeByProtein(sortByLRU(lunchRecipes)) : [];
 
   // Build breakfast pools.
   // weekdayBfPool: weekday-specific + any-day recipes, used for batch rotation (Mon–Fri).
@@ -228,9 +231,9 @@ export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) 
   //   instead extend the current weekday batch so a new batch never starts on a weekend.
   const weekdayBfRecipes = breakfastRecipes.filter((r) => r.suitableDays === "weekday" || r.suitableDays === "any");
   const weekendSpecificRecipes = breakfastRecipes.filter((r) => r.suitableDays === "weekend");
-  const weekdayBfPool = distributeByProtein(weekdayBfRecipes.length > 0 ? weekdayBfRecipes : breakfastRecipes);
+  const weekdayBfPool = distributeByProtein(sortByLRU(weekdayBfRecipes.length > 0 ? weekdayBfRecipes : breakfastRecipes));
   const weekendBfPool = weekendSpecificRecipes.length > 0
-    ? distributeByProtein([...weekendSpecificRecipes, ...breakfastRecipes.filter((r) => r.suitableDays === "any")])
+    ? distributeByProtein(sortByLRU([...weekendSpecificRecipes, ...breakfastRecipes.filter((r) => r.suitableDays === "any")]))
     : null;
 
   const dayEntries: Array<{ dayDate: string; recipeId: number; mealType: string }> = [];
