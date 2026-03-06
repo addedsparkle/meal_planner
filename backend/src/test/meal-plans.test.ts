@@ -415,4 +415,86 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toContain("No recipes available");
   });
+
+  it("creating a meal plan sets lastUsedAt on used recipes", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Curry");
+
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Week",
+        startDate: "2026-10-01",
+        endDate: "2026-10-02",
+        days: [
+          { dayDate: "2026-10-01", recipeId: recipe.id },
+          { dayDate: "2026-10-02", recipeId: recipe.id },
+        ],
+      },
+    });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBe("2026-10-02");
+  });
+
+  it("deleting a meal plan clears lastUsedAt when recipe no longer used", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Soup");
+
+    const plan = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Solo Plan",
+        startDate: "2026-10-05",
+        endDate: "2026-10-05",
+        days: [{ dayDate: "2026-10-05", recipeId: recipe.id }],
+      },
+    });
+
+    await app.inject({ method: "DELETE", url: `/api/meal-plans/${plan.json().id}` });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBeNull();
+  });
+
+  it("editing a meal plan to remove a recipe recomputes lastUsedAt from remaining plans", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Stew");
+
+    // Plan A: uses recipe on 2026-11-01
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Plan A",
+        startDate: "2026-11-01",
+        endDate: "2026-11-01",
+        days: [{ dayDate: "2026-11-01", recipeId: recipe.id }],
+      },
+    });
+
+    // Plan B: uses recipe on 2026-11-10 (more recent)
+    const planB = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Plan B",
+        startDate: "2026-11-10",
+        endDate: "2026-11-10",
+        days: [{ dayDate: "2026-11-10", recipeId: recipe.id }],
+      },
+    });
+
+    // Remove recipe from Plan B — lastUsedAt should fall back to Plan A's date
+    await app.inject({
+      method: "PUT",
+      url: `/api/meal-plans/${planB.json().id}`,
+      payload: { name: "Plan B", days: [] },
+    });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBe("2026-11-01");
+  });
 });

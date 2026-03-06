@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import type { AppDatabase } from "../db/index.js";
 import { mealPlans, mealPlanDays, recipes } from "../db/schema.js";
 
@@ -17,6 +17,29 @@ interface GenerateMealPlanInput {
   name: string;
   startDate: string;
   endDate: string;
+}
+
+function recomputeLastUsedAt(db: AppDatabase, recipeIds: number[]): void {
+  if (recipeIds.length === 0) return;
+
+  const rows = db
+    .select({
+      recipeId: mealPlanDays.recipeId,
+      maxDate: sql<string>`MAX(${mealPlanDays.dayDate})`,
+    })
+    .from(mealPlanDays)
+    .where(inArray(mealPlanDays.recipeId, recipeIds))
+    .groupBy(mealPlanDays.recipeId)
+    .all();
+
+  const lastUsedMap = new Map(rows.map((r) => [r.recipeId, r.maxDate]));
+
+  for (const recipeId of recipeIds) {
+    db.update(recipes)
+      .set({ lastUsedAt: lastUsedMap.get(recipeId) ?? null })
+      .where(eq(recipes.id, recipeId))
+      .run();
+  }
 }
 
 function getMealPlanWithDetails(db: AppDatabase, id: number) {
@@ -79,6 +102,9 @@ export function createMealPlan(db: AppDatabase, input: CreateMealPlanInput) {
     }
   }
 
+  const usedIds = (input.days ?? []).map((d) => d.recipeId);
+  if (usedIds.length > 0) recomputeLastUsedAt(db, [...new Set(usedIds)]);
+
   return getMealPlanWithDetails(db, plan.id)!;
 }
 
@@ -92,12 +118,23 @@ export function updateMealPlan(db: AppDatabase, id: number, input: Partial<Creat
     .run();
 
   if (input.days !== undefined) {
+    // Collect old recipe IDs before deleting
+    const oldDays = db.select({ recipeId: mealPlanDays.recipeId })
+      .from(mealPlanDays)
+      .where(eq(mealPlanDays.mealPlanId, id))
+      .all();
+    const oldIds = oldDays.map((d) => d.recipeId);
+
     db.delete(mealPlanDays).where(eq(mealPlanDays.mealPlanId, id)).run();
     for (const day of input.days) {
       db.insert(mealPlanDays)
         .values({ mealPlanId: id, dayDate: day.dayDate, recipeId: day.recipeId, mealType: day.mealType ?? "dinner" })
         .run();
     }
+
+    const newIds = input.days.map((d) => d.recipeId);
+    const affectedIds = [...new Set([...oldIds, ...newIds])];
+    if (affectedIds.length > 0) recomputeLastUsedAt(db, affectedIds);
   }
 
   return getMealPlanWithDetails(db, id)!;
@@ -107,8 +144,16 @@ export function deleteMealPlan(db: AppDatabase, id: number): boolean {
   const existing = db.select().from(mealPlans).where(eq(mealPlans.id, id)).get();
   if (!existing) return false;
 
+  const days = db.select({ recipeId: mealPlanDays.recipeId })
+    .from(mealPlanDays)
+    .where(eq(mealPlanDays.mealPlanId, id))
+    .all();
+  const recipeIds = [...new Set(days.map((d) => d.recipeId))];
+
   db.delete(mealPlanDays).where(eq(mealPlanDays.mealPlanId, id)).run();
   db.delete(mealPlans).where(eq(mealPlans.id, id)).run();
+
+  if (recipeIds.length > 0) recomputeLastUsedAt(db, recipeIds);
   return true;
 }
 
