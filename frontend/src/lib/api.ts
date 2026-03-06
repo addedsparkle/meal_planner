@@ -44,10 +44,7 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 
 // ── Recipes ──────────────────────────────────────────────────────────
 
-export type RecipeSortField = "name" | "lastUsedAt" | "createdAt";
-export type SortOrder = "asc" | "desc";
-
-export function fetchRecipes(_sortBy?: RecipeSortField, _order?: SortOrder): Promise<Recipe[]> {
+export function fetchRecipes(): Promise<Recipe[]> {
   return apiFetch<Recipe[]>("/recipes");
 }
 
