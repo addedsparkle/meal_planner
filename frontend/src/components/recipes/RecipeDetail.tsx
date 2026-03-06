@@ -31,10 +31,7 @@ export function RecipeDetail({ recipe, onEdit, onClose }: RecipeDetailProps) {
         )}
       </div>
 
-      <p className="text-sm text-gray-500">
-        <span className="font-medium text-gray-700">Last used:</span>{" "}
-        {formatLastUsed(recipe.lastUsedAt)}
-      </p>
+      <p className="text-sm text-gray-400">{formatLastUsed(recipe.lastUsedAt)}</p>
 
       {recipe.description && (
         <p className="text-sm text-gray-700">{recipe.description}</p>
