@@ -17,6 +17,7 @@ export interface Recipe {
   mealTypes: string[];
   suitableDays: SuitableDays;
   freezable: boolean;
+  lastUsedAt: string | null;
   createdAt: string;
   updatedAt: string;
   ingredients: RecipeIngredient[];
