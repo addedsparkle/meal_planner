@@ -10,6 +10,7 @@ const base: Recipe = {
   mealTypes: ["dinner"],
   suitableDays: "any",
   freezable: false,
+  lastUsedAt: null,
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
   ingredients: [
@@ -118,6 +119,12 @@ export const ManyIngredients: Story = {
         notes: null,
       })),
     },
+  },
+};
+
+export const RecentlyUsed: Story = {
+  args: {
+    recipe: { ...base, lastUsedAt: "2026-03-03" },
   },
 };
 

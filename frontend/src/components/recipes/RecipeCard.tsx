@@ -11,6 +11,18 @@ interface RecipeCardProps {
   deleting?: boolean;
 }
 
+function formatLastUsed(lastUsedAt: string | null): string {
+  if (!lastUsedAt) return "Never used";
+  const diffDays = Math.floor(
+    (Date.now() - new Date(lastUsedAt + "T00:00:00").getTime()) / (1000 * 60 * 60 * 24),
+  );
+  if (diffDays === 0) return "Used today";
+  if (diffDays === 1) return "Used yesterday";
+  if (diffDays < 7) return `Used ${diffDays} days ago`;
+  if (diffDays < 30) return `Used ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? "s" : ""} ago`;
+  return `Used ${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) !== 1 ? "s" : ""} ago`;
+}
+
 export function RecipeCard({ recipe, onView, onEdit, onDelete, deleting }: RecipeCardProps) {
   return (
     <Card className="flex flex-col">
@@ -55,6 +67,9 @@ export function RecipeCard({ recipe, onView, onEdit, onDelete, deleting }: Recip
             </span>
           )}
         </div>
+        <p className="mt-2 text-xs text-gray-400">
+          {formatLastUsed(recipe.lastUsedAt)}
+        </p>
       </CardBody>
 
       <CardFooter className="flex justify-end gap-2">
