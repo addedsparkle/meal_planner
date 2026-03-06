@@ -10,6 +10,7 @@ const base: Recipe = {
   mealTypes: ["dinner"],
   suitableDays: "any",
   freezable: false,
+  lastUsedAt: null,
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
   ingredients: [
@@ -77,6 +78,16 @@ export const IngredientWithNotes: Story = {
         { id: 2, name: "mushrooms", category: null, units: "g", quantity: "200", notes: "sliced" },
         { id: 3, name: "rosemary", category: null, units: "sprig", quantity: "2", notes: "fresh" },
       ],
+    },
+  },
+};
+
+export const RecentlyUsed: Story = {
+  args: {
+    recipe: {
+      ...base,
+      name: "Chicken Stir Fry (recently used)",
+      lastUsedAt: "2026-02-01",
     },
   },
 };

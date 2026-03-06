@@ -1,6 +1,7 @@
 import { Snowflake, UtensilsCrossed } from "lucide-react";
 import { Button } from "../ui/Button";
 import type { Recipe } from "../../lib/types";
+import { formatLastUsed } from "../../lib/formatLastUsed";
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -29,6 +30,11 @@ export function RecipeDetail({ recipe, onEdit, onClose }: RecipeDetailProps) {
           </span>
         )}
       </div>
+
+      <p className="text-sm text-gray-500">
+        <span className="font-medium text-gray-700">Last used:</span>{" "}
+        {formatLastUsed(recipe.lastUsedAt)}
+      </p>
 
       {recipe.description && (
         <p className="text-sm text-gray-700">{recipe.description}</p>
