@@ -210,6 +210,23 @@ function recipesForMealType(allRecipes: typeof recipes.$inferSelect[], mealType:
   );
 }
 
+/**
+ * Returns the ID of the first recipe in pool that is not in usedIds, marks it used,
+ * and returns it. Returns null when every recipe in the pool has already been used.
+ */
+function pickNext(
+  pool: typeof recipes.$inferSelect[],
+  usedIds: Set<number>,
+): number | null {
+  for (const recipe of pool) {
+    if (!usedIds.has(recipe.id)) {
+      usedIds.add(recipe.id);
+      return recipe.id;
+    }
+  }
+  return null;
+}
+
 export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) {
   const allRecipes = db.select().from(recipes).all();
 
@@ -238,37 +255,61 @@ export function generateMealPlan(db: AppDatabase, input: GenerateMealPlanInput) 
 
   const dayEntries: Array<{ dayDate: string; recipeId: number; mealType: string }> = [];
 
-  // Batch state for the weekday/any breakfast pool.
-  // The batch counter increments every day, but a batch *transition* (starting a new batch)
-  // is deferred if it would land on a weekend — so a batch can end on a weekend but never
-  // starts on one. E.g. Thu/Fri/Sat is fine; a new batch then starts on the following Monday.
+  // Global set of recipe IDs already assigned in this plan — enforces cross-meal uniqueness.
+  const usedIds = new Set<number>();
+
+  // Wrap-around indices for when pools are fully exhausted (best-effort fallback).
+  let dinnerWrapIdx = 0;
+  let lunchWrapIdx = 0;
+
+  // Track the most recently assigned dinner recipe for the lunch leftovers fallback.
+  let lastDinnerId: number | null = null;
+
+  // Batch state for the weekday/any breakfast pool (unchanged from before).
   let batchIdx = 0;
   let daysInCurrentBatch = 0;
   let weekendBreakfastCount = 0;
 
-  days.forEach((dayDate, i) => {
+  days.forEach((dayDate) => {
+    // ── Breakfast ──────────────────────────────────────────────────────────────
     if (breakfastRecipes.length > 0) {
+      let bfRecipeId: number;
       if (isWeekend(dayDate) && weekendBfPool !== null) {
-        // Weekend with dedicated recipes: rotate daily through the weekend pool
-        dayEntries.push({ dayDate, recipeId: weekendBfPool[weekendBreakfastCount % weekendBfPool.length]!.id, mealType: "breakfast" });
+        bfRecipeId = weekendBfPool[weekendBreakfastCount % weekendBfPool.length]!.id;
         weekendBreakfastCount++;
       } else {
-        // Weekday batch track (also covers weekends when no weekend-specific pool exists).
-        // Advance to the next batch only when the current day is a weekday.
         if (daysInCurrentBatch >= 3 && !isWeekend(dayDate)) {
           batchIdx++;
           daysInCurrentBatch = 0;
         }
-        dayEntries.push({ dayDate, recipeId: weekdayBfPool[batchIdx % weekdayBfPool.length]!.id, mealType: "breakfast" });
+        bfRecipeId = weekdayBfPool[batchIdx % weekdayBfPool.length]!.id;
         daysInCurrentBatch++;
       }
+      // Add to usedIds so this recipe is not reused for lunch or dinner.
+      usedIds.add(bfRecipeId);
+      dayEntries.push({ dayDate, recipeId: bfRecipeId, mealType: "breakfast" });
     }
-    // Lunch: daily rotation distributed by protein
+
+    // ── Lunch ──────────────────────────────────────────────────────────────────
     if (distributedLunch.length > 0) {
-      dayEntries.push({ dayDate, recipeId: distributedLunch[i % distributedLunch.length]!.id, mealType: "lunch" });
+      // 1. Try to pick an unused lunch recipe.
+      // 2. Fall back to yesterday's dinner (leftovers).
+      // 3. Last resort: wrap around the lunch pool (allows repeat).
+      const lunchId =
+        pickNext(distributedLunch, usedIds) ??
+        lastDinnerId ??
+        distributedLunch[lunchWrapIdx++ % distributedLunch.length]!.id;
+      dayEntries.push({ dayDate, recipeId: lunchId, mealType: "lunch" });
     }
-    // Dinner: daily rotation distributed by protein
-    dayEntries.push({ dayDate, recipeId: distributedDinner[i % distributedDinner.length]!.id, mealType: "dinner" });
+
+    // ── Dinner ─────────────────────────────────────────────────────────────────
+    // 1. Try to pick an unused dinner recipe.
+    // 2. Fall back to wrap-around (allows repeat — best effort).
+    const dinnerId =
+      pickNext(distributedDinner, usedIds) ??
+      distributedDinner[dinnerWrapIdx++ % distributedDinner.length]!.id;
+    dayEntries.push({ dayDate, recipeId: dinnerId, mealType: "dinner" });
+    lastDinnerId = dinnerId;
   });
 
   return createMealPlan(db, {
