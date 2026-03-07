@@ -559,7 +559,10 @@ describe("Meal Plans API", () => {
 
     const days = res.json().days;
     expect(days).toHaveLength(6); // 3 days × 2 meal types (lunch + dinner)
-    const ids = days.map((d: { recipe: { id: number } }) => d.recipe.id);
+    const ids = days.map((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id;
+    });
     const uniqueIds = new Set(ids);
     expect(uniqueIds.size).toBe(ids.length); // every slot has a different recipe
   });
@@ -575,8 +578,12 @@ describe("Meal Plans API", () => {
     });
     const sharedId = sharedRes.json().id;
 
-    // A dinner-only recipe to fill the second dinner slot
-    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only", mealTypes: ["dinner"] } });
+    // A lunch-only recipe to fill the remaining lunch slot
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Lunch Only", mealTypes: ["lunch"] } });
+
+    // Two dinner-only recipes to fill the dinner slots
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only 1", mealTypes: ["dinner"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only 2", mealTypes: ["dinner"] } });
 
     const res = await app.inject({
       method: "POST",
@@ -617,9 +624,10 @@ describe("Meal Plans API", () => {
     const day2Lunch = days.find(
       (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-03" && d.mealType === "lunch",
     );
-    expect(day1Dinner).toBeDefined();
-    expect(day2Lunch).toBeDefined();
+    if (!day1Dinner || !day2Lunch) {
+      throw new Error(`Expected slots not found in response. days: ${JSON.stringify(days)}`);
+    }
     // Day 2 lunch must be day 1 dinner (leftover)
-    expect(day2Lunch!.recipe.id).toBe(day1Dinner!.recipe.id);
+    expect((day2Lunch as { recipe: { id: number } }).recipe.id).toBe((day1Dinner as { recipe: { id: number } }).recipe.id);
   });
 });
