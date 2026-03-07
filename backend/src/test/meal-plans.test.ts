@@ -576,7 +576,7 @@ describe("Meal Plans API", () => {
       url: "/api/recipes",
       payload: { name: "Shared Recipe", mealTypes: ["lunch", "dinner"] },
     });
-    const sharedId = sharedRes.json().id;
+    const sharedId: number = sharedRes.json().id as number;
 
     // A lunch-only recipe to fill the remaining lunch slot
     await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Lunch Only", mealTypes: ["lunch"] } });
@@ -594,11 +594,18 @@ describe("Meal Plans API", () => {
 
     const days = res.json().days;
     expect(days).toHaveLength(4); // 2 days × 2 meal types (lunch + dinner)
-    const sharedAppearances = days.filter((d: { recipe: { id: number } }) => d.recipe.id === sharedId);
+    const allIds = days.map((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id;
+    });
+    expect(new Set(allIds).size).toBe(allIds.length); // all 4 slots have distinct recipes
+    const sharedAppearances = days.filter((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id === sharedId;
+    });
     // The shared recipe must appear exactly once — it should fill one slot (lunch or dinner)
     // and must not duplicate into the other meal type pool
-    expect(sharedAppearances.length).toBeGreaterThanOrEqual(1); // actually selected
-    expect(sharedAppearances.length).toBe(1); // selected at most once
+    expect(sharedAppearances.length).toBe(1); // selected exactly once
   });
 
   it("POST /api/meal-plans/generate uses previous day dinner as lunch fallback when lunch pool exhausted", async () => {
