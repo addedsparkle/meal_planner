@@ -539,4 +539,78 @@ describe("Meal Plans API", () => {
     const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
     expect(res.json().lastUsedAt).toBe("2026-11-01");
   });
+
+  it("POST /api/meal-plans/generate does not repeat recipes across meal types when enough exist", async () => {
+    const app = await getApp();
+
+    // 3 dinner-only + 3 lunch-only = 6 unique recipes for a 3-day plan (3 dinners + 3 lunches)
+    for (let i = 0; i < 3; i++) {
+      await app.inject({ method: "POST", url: "/api/recipes", payload: { name: `Dinner ${i}`, mealTypes: ["dinner"] } });
+      await app.inject({ method: "POST", url: "/api/recipes", payload: { name: `Lunch ${i}`, mealTypes: ["lunch"] } });
+    }
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      // 2026-11-02 Mon to 2026-11-04 Wed — 3 weekdays, no breakfast recipes so only lunch+dinner
+      payload: { name: "Unique Plan", startDate: "2026-11-02", endDate: "2026-11-04" },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const ids = res.json().days.map((d: { recipe: { id: number } }) => d.recipe.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length); // every slot has a different recipe
+  });
+
+  it("POST /api/meal-plans/generate does not use a multi-meal-type recipe in both lunch and dinner", async () => {
+    const app = await getApp();
+
+    // One recipe suitable for both lunch and dinner
+    const sharedRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Shared Recipe", mealTypes: ["lunch", "dinner"] },
+    });
+    const sharedId = sharedRes.json().id;
+
+    // A dinner-only recipe to fill the second dinner slot
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only", mealTypes: ["dinner"] } });
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "No Dupe Plan", startDate: "2026-11-02", endDate: "2026-11-03" }, // 2 days
+    });
+    expect(res.statusCode).toBe(201);
+
+    const days = res.json().days;
+    const sharedAppearances = days.filter((d: { recipe: { id: number } }) => d.recipe.id === sharedId);
+    expect(sharedAppearances.length).toBe(1); // used exactly once despite being in both pools
+  });
+
+  it("POST /api/meal-plans/generate uses previous day dinner as lunch fallback when lunch pool exhausted", async () => {
+    const app = await getApp();
+
+    // Only 1 lunch recipe but 2-day plan → day 2 lunch must reuse a dinner
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Lunch Recipe", mealTypes: ["lunch"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner 1", mealTypes: ["dinner"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner 2", mealTypes: ["dinner"] } });
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Leftovers Plan", startDate: "2026-11-02", endDate: "2026-11-03" }, // 2 days
+    });
+    expect(res.statusCode).toBe(201);
+
+    const days = res.json().days;
+    const day1Dinner = days.find(
+      (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-02" && d.mealType === "dinner",
+    );
+    const day2Lunch = days.find(
+      (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-03" && d.mealType === "lunch",
+    );
+    // Day 2 lunch must be day 1 dinner (leftover)
+    expect(day2Lunch.recipe.id).toBe(day1Dinner.recipe.id);
+  });
 });
