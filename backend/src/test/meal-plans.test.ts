@@ -557,7 +557,9 @@ describe("Meal Plans API", () => {
     });
     expect(res.statusCode).toBe(201);
 
-    const ids = res.json().days.map((d: { recipe: { id: number } }) => d.recipe.id);
+    const days = res.json().days;
+    expect(days).toHaveLength(6); // 3 days × 2 meal types (lunch + dinner)
+    const ids = days.map((d: { recipe: { id: number } }) => d.recipe.id);
     const uniqueIds = new Set(ids);
     expect(uniqueIds.size).toBe(ids.length); // every slot has a different recipe
   });
@@ -584,8 +586,12 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(201);
 
     const days = res.json().days;
+    expect(days).toHaveLength(4); // 2 days × 2 meal types (lunch + dinner)
     const sharedAppearances = days.filter((d: { recipe: { id: number } }) => d.recipe.id === sharedId);
-    expect(sharedAppearances.length).toBe(1); // used exactly once despite being in both pools
+    // The shared recipe must appear exactly once — it should fill one slot (lunch or dinner)
+    // and must not duplicate into the other meal type pool
+    expect(sharedAppearances.length).toBeGreaterThanOrEqual(1); // actually selected
+    expect(sharedAppearances.length).toBe(1); // selected at most once
   });
 
   it("POST /api/meal-plans/generate uses previous day dinner as lunch fallback when lunch pool exhausted", async () => {
@@ -604,13 +610,16 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(201);
 
     const days = res.json().days;
+    expect(days).toHaveLength(4); // 2 days × 2 meal types (lunch + dinner)
     const day1Dinner = days.find(
       (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-02" && d.mealType === "dinner",
     );
     const day2Lunch = days.find(
       (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-03" && d.mealType === "lunch",
     );
+    expect(day1Dinner).toBeDefined();
+    expect(day2Lunch).toBeDefined();
     // Day 2 lunch must be day 1 dinner (leftover)
-    expect(day2Lunch.recipe.id).toBe(day1Dinner.recipe.id);
+    expect(day2Lunch!.recipe.id).toBe(day1Dinner!.recipe.id);
   });
 });
