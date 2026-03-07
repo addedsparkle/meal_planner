@@ -21,6 +21,8 @@ export function RecipeList() {
   const deleteRecipe = useDeleteRecipe();
   const [modal, setModal] = useState<ModalState>({ kind: "none" });
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  type SortOption = "name" | "lastUsedAt";
+  const [sortBy, setSortBy] = useState<SortOption>("name");
 
   function closeModal() {
     setModal({ kind: "none" });
@@ -35,6 +37,18 @@ export function RecipeList() {
     } finally {
       setDeletingId(null);
     }
+  }
+
+  function sortedRecipes(list: Recipe[]): Recipe[] {
+    return [...list].sort((a, b) => {
+      if (sortBy === "lastUsedAt") {
+        if (a.lastUsedAt === null && b.lastUsedAt === null) return 0;
+        if (a.lastUsedAt === null) return -1;
+        if (b.lastUsedAt === null) return 1;
+        return a.lastUsedAt.localeCompare(b.lastUsedAt);
+      }
+      return a.name.localeCompare(b.name);
+    });
   }
 
   if (isLoading) {
@@ -59,10 +73,20 @@ export function RecipeList() {
             <span className="ml-2 text-sm font-normal text-gray-400">({recipes.length})</span>
           )}
         </h2>
-        <Button size="sm" onClick={() => setModal({ kind: "create" })}>
-          <Plus className="h-4 w-4" />
-          New Recipe
-        </Button>
+        <div className="flex items-center gap-3">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-600 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="name">Sort: Name</option>
+            <option value="lastUsedAt">Sort: Last used</option>
+          </select>
+          <Button size="sm" onClick={() => setModal({ kind: "create" })}>
+            <Plus className="h-4 w-4" />
+            New Recipe
+          </Button>
+        </div>
       </div>
 
       {/* Empty state */}
@@ -79,7 +103,7 @@ export function RecipeList() {
       {/* Recipe grid */}
       {recipes && recipes.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recipes.map((recipe) => (
+          {sortedRecipes(recipes).map((recipe) => (
             <RecipeCard
               key={recipe.id}
               recipe={recipe}

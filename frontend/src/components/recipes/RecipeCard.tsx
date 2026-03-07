@@ -2,6 +2,7 @@ import { Snowflake, UtensilsCrossed } from "lucide-react";
 import { Card, CardBody, CardFooter } from "../ui/Card";
 import { Button } from "../ui/Button";
 import type { Recipe } from "../../lib/types";
+import { formatLastUsed } from "../../lib/formatLastUsed";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -55,6 +56,9 @@ export function RecipeCard({ recipe, onView, onEdit, onDelete, deleting }: Recip
             </span>
           )}
         </div>
+        <p className="mt-2 text-xs text-gray-400">
+          {formatLastUsed(recipe.lastUsedAt)}
+        </p>
       </CardBody>
 
       <CardFooter className="flex justify-end gap-2">

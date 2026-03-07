@@ -415,4 +415,226 @@ describe("Meal Plans API", () => {
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toContain("No recipes available");
   });
+
+  it("creating a meal plan sets lastUsedAt on used recipes", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Curry");
+
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Week",
+        startDate: "2026-10-01",
+        endDate: "2026-10-02",
+        days: [
+          { dayDate: "2026-10-01", recipeId: recipe.id },
+          { dayDate: "2026-10-02", recipeId: recipe.id },
+        ],
+      },
+    });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBe("2026-10-02");
+  });
+
+  it("deleting a meal plan clears lastUsedAt when recipe no longer used", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Soup");
+
+    const plan = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Solo Plan",
+        startDate: "2026-10-05",
+        endDate: "2026-10-05",
+        days: [{ dayDate: "2026-10-05", recipeId: recipe.id }],
+      },
+    });
+
+    await app.inject({ method: "DELETE", url: `/api/meal-plans/${plan.json().id}` });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBeNull();
+  });
+
+  it("POST /api/meal-plans/generate prefers least-recently-used recipes", async () => {
+    const app = await getApp();
+
+    // Create two dinner recipes
+    const recentRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Recent Recipe", mealTypes: ["dinner"] },
+    });
+    const recentId = recentRes.json().id;
+
+    const oldRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Old Recipe", mealTypes: ["dinner"] },
+    });
+    const oldId = oldRes.json().id;
+
+    // Use "Recent Recipe" in a plan ending 2026-10-20
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Previous Plan",
+        startDate: "2026-10-20",
+        endDate: "2026-10-20",
+        days: [{ dayDate: "2026-10-20", recipeId: recentId }],
+      },
+    });
+
+    // Generate a new 2-day plan — "Old Recipe" (never used) should appear on day 1
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "New Plan", startDate: "2026-10-21", endDate: "2026-10-22" },
+    });
+    expect(res.statusCode).toBe(201);
+    const dinners = res.json().days.filter((d: { mealType: string }) => d.mealType === "dinner");
+    expect(dinners[0].recipe.id).toBe(oldId);
+    expect(dinners[1].recipe.id).toBe(recentId);
+  });
+
+  it("editing a meal plan to remove a recipe recomputes lastUsedAt from remaining plans", async () => {
+    const app = await getApp();
+    const recipe = await createTestRecipe(app, "Stew");
+
+    // Plan A: uses recipe on 2026-11-01
+    await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Plan A",
+        startDate: "2026-11-01",
+        endDate: "2026-11-01",
+        days: [{ dayDate: "2026-11-01", recipeId: recipe.id }],
+      },
+    });
+
+    // Plan B: uses recipe on 2026-11-10 (more recent)
+    const planB = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans",
+      payload: {
+        name: "Plan B",
+        startDate: "2026-11-10",
+        endDate: "2026-11-10",
+        days: [{ dayDate: "2026-11-10", recipeId: recipe.id }],
+      },
+    });
+
+    // Remove recipe from Plan B — lastUsedAt should fall back to Plan A's date
+    await app.inject({
+      method: "PUT",
+      url: `/api/meal-plans/${planB.json().id}`,
+      payload: { name: "Plan B", days: [] },
+    });
+
+    const res = await app.inject({ method: "GET", url: `/api/recipes/${recipe.id}` });
+    expect(res.json().lastUsedAt).toBe("2026-11-01");
+  });
+
+  it("POST /api/meal-plans/generate does not repeat recipes across meal types when enough exist", async () => {
+    const app = await getApp();
+
+    // 3 dinner-only + 3 lunch-only = 6 unique recipes for a 3-day plan (3 dinners + 3 lunches)
+    for (let i = 0; i < 3; i++) {
+      await app.inject({ method: "POST", url: "/api/recipes", payload: { name: `Dinner ${i}`, mealTypes: ["dinner"] } });
+      await app.inject({ method: "POST", url: "/api/recipes", payload: { name: `Lunch ${i}`, mealTypes: ["lunch"] } });
+    }
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      // 2026-11-02 Mon to 2026-11-04 Wed — 3 weekdays, no breakfast recipes so only lunch+dinner
+      payload: { name: "Unique Plan", startDate: "2026-11-02", endDate: "2026-11-04" },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const days = res.json().days;
+    expect(days).toHaveLength(6); // 3 days × 2 meal types (lunch + dinner)
+    const ids = days.map((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id;
+    });
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length); // every slot has a different recipe
+  });
+
+  it("POST /api/meal-plans/generate does not use a multi-meal-type recipe in both lunch and dinner", async () => {
+    const app = await getApp();
+
+    // One recipe suitable for both lunch and dinner
+    const sharedRes = await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Shared Recipe", mealTypes: ["lunch", "dinner"] },
+    });
+    const sharedId: number = sharedRes.json().id as number;
+
+    // A lunch-only recipe to fill the remaining lunch slot
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Lunch Only", mealTypes: ["lunch"] } });
+
+    // Two dinner-only recipes to fill the dinner slots
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only 1", mealTypes: ["dinner"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner Only 2", mealTypes: ["dinner"] } });
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "No Dupe Plan", startDate: "2026-11-02", endDate: "2026-11-03" }, // 2 days
+    });
+    expect(res.statusCode).toBe(201);
+
+    const days = res.json().days;
+    expect(days).toHaveLength(4); // 2 days × 2 meal types (lunch + dinner)
+    const allIds = days.map((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id;
+    });
+    expect(new Set(allIds).size).toBe(allIds.length); // all 4 slots have distinct recipes
+    const sharedAppearances = days.filter((d: { recipe: { id: number } | null }) => {
+      if (!d.recipe) throw new Error(`Slot missing recipe: ${JSON.stringify(d)}`);
+      return d.recipe.id === sharedId;
+    });
+    // The shared recipe must appear exactly once — it should fill one slot (lunch or dinner)
+    // and must not duplicate into the other meal type pool
+    expect(sharedAppearances.length).toBe(1); // selected exactly once
+  });
+
+  it("POST /api/meal-plans/generate uses previous day dinner as lunch fallback when lunch pool exhausted", async () => {
+    const app = await getApp();
+
+    // Only 1 lunch recipe but 2-day plan → day 2 lunch must reuse a dinner
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Lunch Recipe", mealTypes: ["lunch"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner 1", mealTypes: ["dinner"] } });
+    await app.inject({ method: "POST", url: "/api/recipes", payload: { name: "Dinner 2", mealTypes: ["dinner"] } });
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/meal-plans/generate",
+      payload: { name: "Leftovers Plan", startDate: "2026-11-02", endDate: "2026-11-03" }, // 2 days
+    });
+    expect(res.statusCode).toBe(201);
+
+    const days = res.json().days;
+    expect(days).toHaveLength(4); // 2 days × 2 meal types (lunch + dinner)
+    const day1Dinner = days.find(
+      (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-02" && d.mealType === "dinner",
+    );
+    const day2Lunch = days.find(
+      (d: { dayDate: string; mealType: string }) => d.dayDate === "2026-11-03" && d.mealType === "lunch",
+    );
+    if (!day1Dinner || !day2Lunch) {
+      throw new Error(`Expected slots not found in response. days: ${JSON.stringify(days)}`);
+    }
+    // Day 2 lunch must be day 1 dinner (leftover)
+    expect((day2Lunch as { recipe: { id: number } }).recipe.id).toBe((day1Dinner as { recipe: { id: number } }).recipe.id);
+  });
 });

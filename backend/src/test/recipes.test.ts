@@ -223,6 +223,21 @@ Soup,Warm soup,2,"chicken (300g),carrot"`;
     expect(result.errors).toHaveLength(0);
   });
 
+  it("GET /api/recipes includes lastUsedAt (null when unused)", async () => {
+    const app = await getApp();
+    await app.inject({
+      method: "POST",
+      url: "/api/recipes",
+      payload: { name: "Fresh Recipe" },
+    });
+
+    const res = await app.inject({ method: "GET", url: "/api/recipes" });
+    expect(res.statusCode).toBe(200);
+    const recipes = res.json();
+    expect(recipes[0]).toHaveProperty("lastUsedAt");
+    expect(recipes[0].lastUsedAt).toBeNull();
+  });
+
   it("POST /api/recipes/import handles missing name", async () => {
     const app = await getApp();
     const csv = `name,description

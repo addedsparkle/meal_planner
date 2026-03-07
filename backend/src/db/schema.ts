@@ -11,6 +11,7 @@ export const recipes = sqliteTable("recipes", {
   mealTypes: text("meal_types").notNull().default("dinner"),
   suitableDays: text("suitable_days").notNull().default("any"),
   freezable: integer("freezable", { mode: "boolean" }).notNull().default(false),
+  lastUsedAt: text("last_used_at"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
   updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
 });
