@@ -16,7 +16,10 @@
       "Bash(cd /workspaces/meal_planner/frontend && npx tsc -b 2>&1)",
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "WebFetch(domain:design.wayflyer.com)",
+      "Bash(gh issue:*)",
+      "Bash(gh auth:*)"
     ],
     "deny": [],
     "ask": []

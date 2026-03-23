@@ -12,9 +12,8 @@ import type {
 const API_BASE = "/api";
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const isFormData = options?.body instanceof FormData;
   const headers: HeadersInit = {
-    ...(!isFormData && { "Content-Type": "application/json" }),
+    ...(options?.body !== undefined && { "Content-Type": "application/json" }),
     ...options?.headers,
   };
 
@@ -28,9 +27,20 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    const message =
-      (body as { error?: string } | null)?.error ??
-      `Request failed: ${response.status}`;
+    const errorBody = (body as { error?: unknown } | null)?.error;
+    let message: string;
+    if (typeof errorBody === "string") {
+      message = errorBody;
+    } else if (errorBody && typeof errorBody === "object") {
+      const flat = errorBody as { fieldErrors?: Record<string, string[]>; formErrors?: string[] };
+      const fieldMsgs = Object.entries(flat.fieldErrors ?? {})
+        .map(([field, errs]) => `${field}: ${errs.join(", ")}`)
+        .join("; ");
+      const formMsgs = (flat.formErrors ?? []).join("; ");
+      message = [fieldMsgs, formMsgs].filter(Boolean).join("; ") || `Request failed: ${response.status}`;
+    } else {
+      message = `Request failed: ${response.status}`;
+    }
     throw new Error(message);
   }
 
