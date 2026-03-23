@@ -7,13 +7,15 @@ import {
 } from "@tanstack/react-router";
 import type { NotFoundRouteComponent } from "@tanstack/react-router";
 import { UtensilsCrossed } from "lucide-react";
+import { CurrentMealPlanPage } from "./pages/CurrentMealPlanPage";
 import { RecipesPage } from "./pages/RecipesPage";
 import { MealPlansPage } from "./pages/MealPlansPage";
 import { MealPlanDetailPage } from "./pages/MealPlanDetailPage";
 import { ShoppingListPage } from "./pages/ShoppingListPage";
 
 const NAV_LINKS = [
-  { to: "/", label: "Recipes", exact: true },
+  { to: "/", label: "Current Plan", exact: true },
+  { to: "/recipes", label: "Recipes", exact: false },
   { to: "/meal-plans", label: "Meal Plans", exact: false },
   { to: "/shopping-list", label: "Shopping List", exact: false },
 ] as const;
@@ -56,7 +58,7 @@ const NotFound: NotFoundRouteComponent = () => (
   <div className="py-16 text-center">
     <p className="text-4xl font-bold text-gray-200">404</p>
     <p className="mt-3 text-sm font-medium text-gray-500">Page not found</p>
-    <Link to="/" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+    <Link to="/recipes" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
       Go to Recipes
     </Link>
   </div>
@@ -67,9 +69,15 @@ const rootRoute = createRootRoute({
   notFoundComponent: NotFound,
 });
 
-const recipesRoute = createRoute({
+const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  component: CurrentMealPlanPage,
+});
+
+const recipesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/recipes",
   component: RecipesPage,
 });
 
@@ -83,6 +91,9 @@ const mealPlanDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/meal-plans/$id",
   component: MealPlanDetailPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    edit: search.edit === true || search.edit === "true",
+  }),
 });
 
 const shoppingListRoute = createRoute({
@@ -92,6 +103,7 @@ const shoppingListRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
+  homeRoute,
   recipesRoute,
   mealPlansRoute,
   mealPlanDetailRoute,
