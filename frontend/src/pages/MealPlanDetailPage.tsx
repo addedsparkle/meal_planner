@@ -22,8 +22,9 @@ function formatDateRange(startDate: string, endDate: string): string {
 
 export function MealPlanDetailPage() {
   const { id } = Route.useParams();
+  const { edit } = Route.useSearch();
   const { data: plan, isLoading, error } = useMealPlan(Number(id));
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(edit ?? false);
 
   if (isLoading) {
     return (
