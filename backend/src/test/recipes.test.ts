@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getApp, db } from "./setup.js";
-import { ingredients } from "../db/schema.js";
+import { getApp } from "./setup.js";
 
 describe("Recipes API", () => {
   it("GET /api/recipes returns empty list", async () => {

@@ -60,11 +60,11 @@ export async function importRecipesFromCsv(
   db: AppDatabase,
   csvContent: string,
 ): Promise<ImportResult> {
-  const records: CsvRow[] = parse(csvContent, {
+  const records = parse(csvContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
-  });
+  }) as CsvRow[];
 
   const result: ImportResult = { created: 0, skipped: 0, errors: [] };
 

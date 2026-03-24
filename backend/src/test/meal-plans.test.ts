@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getApp, db } from "./setup.js";
+import { getApp } from "./setup.js";
 
 async function createTestRecipe(app: ReturnType<typeof getApp> extends Promise<infer T> ? T : never, name = "Test Recipe") {
   const res = await app.inject({
@@ -209,7 +209,7 @@ describe("Meal Plans API", () => {
     }, {});
 
     // Each day has breakfast, lunch and dinner
-    for (const entries of Object.values(byDate) as typeof body.days[]) {
+    for (const entries of Object.values(byDate)) {
       const types = entries.map((e: typeof body.days[0]) => e.mealType).sort();
       expect(types).toEqual(["breakfast", "dinner", "lunch"]);
     }

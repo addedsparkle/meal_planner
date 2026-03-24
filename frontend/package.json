@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "generate:types": "openapi-typescript ../backend/openapi.json -o src/lib/generated/api-types.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -15,6 +16,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-router": "^1.160.2",
+    "axios": "^1.13.6",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.564.0",
     "react": "^19.2.0",
@@ -35,6 +37,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "openapi-typescript": "^7.13.0",
     "storybook": "^10.2.10",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
