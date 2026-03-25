@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
+import dayjs from "dayjs";
 import { useMealPlans } from "../hooks/useMealPlans";
 import { MealPlanCalendar } from "../components/meal-plans/MealPlanCalendar";
 import { CurrentPlanEmptyState } from "../components/meal-plans/CurrentPlanEmptyState";
@@ -7,12 +8,7 @@ import { Spinner } from "../components/ui/Spinner";
 import { ErrorMessage } from "../components/ui/ErrorMessage";
 
 function formatDateRange(startDate: string, endDate: string): string {
-  const fmt = (d: string) =>
-    new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+  const fmt = (d: string) => dayjs(d).format("D MMM YYYY");
   return `${fmt(startDate)} – ${fmt(endDate)}`;
 }
 
@@ -31,7 +27,7 @@ export function CurrentMealPlanPage() {
     return <ErrorMessage error={error} />;
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = dayjs().format("YYYY-MM-DD");
   const currentPlan = plans.find(
     (p) => p.startDate <= today && p.endDate >= today,
   );

@@ -84,6 +84,7 @@ const ingredient: Ingredient = {
   name: "Tomato",
   category: "Vegetable",
   createdAt: "2024-01-01T00:00:00Z",
+  units:  "piece"
 };
 
 const ingredientInput: IngredientInput = { name: "Tomato", category: "Vegetable" };
@@ -127,7 +128,7 @@ describe("fetchRecipes", () => {
       "/api/recipes",
       expect.objectContaining({}),
     );
-    expect(fetch.mock.calls[0][1]).not.toHaveProperty("method");
+    expect(fetch.mock.calls[0]![1]).not.toHaveProperty("method");
     expect(result).toEqual([recipe]);
   });
 
