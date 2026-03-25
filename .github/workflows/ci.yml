@@ -26,6 +26,28 @@ jobs:
       - name: Run tests
         run: npm test -w backend
 
+  check-generated:
+    name: Generated files up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate OpenAPI spec
+        run: npm run generate:spec -w backend
+
+      - name: Generate frontend types
+        run: npm run generate:types -w frontend
+
+      - name: Fail if generated files differ from committed
+        run: git diff --exit-code -- backend/openapi.json frontend/src/lib/generated/api-types.ts
+
   frontend-check:
     name: Frontend checks
     runs-on: ubuntu-latest
