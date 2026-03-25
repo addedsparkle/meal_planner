@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getApp, db } from "./setup.js";
+import { getApp } from "./setup.js";
 
 async function createTestRecipe(app: ReturnType<typeof getApp> extends Promise<infer T> ? T : never, name = "Test Recipe") {
   const res = await app.inject({
@@ -203,14 +203,15 @@ describe("Meal Plans API", () => {
     // 6 days × 3 meal types = 18 entries
     expect(body.days).toHaveLength(18);
 
-    const byDate = body.days.reduce((acc: Record<string, typeof body.days>, d: typeof body.days[0]) => {
+    type Day = { dayDate: string; mealType: string | null; recipe: { id: number } };
+    const byDate = (body.days as Day[]).reduce((acc: Record<string, Day[]>, d) => {
       (acc[d.dayDate] ??= []).push(d);
       return acc;
     }, {});
 
     // Each day has breakfast, lunch and dinner
-    for (const entries of Object.values(byDate) as typeof body.days[]) {
-      const types = entries.map((e: typeof body.days[0]) => e.mealType).sort();
+    for (const entries of Object.values(byDate)) {
+      const types = entries.map((e) => e.mealType).sort();
       expect(types).toEqual(["breakfast", "dinner", "lunch"]);
     }
 

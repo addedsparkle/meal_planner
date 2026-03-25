@@ -378,7 +378,7 @@ export function MealPlanEditor({ plan }: MealPlanEditorProps) {
           days: newDays.map((d) => ({
             dayDate: d.dayDate,
             recipeId: d.recipe.id,
-            mealType: d.mealType,
+            mealType: d.mealType ?? undefined,
           })),
         },
       });

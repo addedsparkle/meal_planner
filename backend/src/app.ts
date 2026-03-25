@@ -3,6 +3,12 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+  type ZodTypeProvider,
+} from "fastify-type-provider-zod";
 import type { AppDatabase } from "./db/index.js";
 import { recipeRoutes } from "./routes/recipes.js";
 import { ingredientRoutes } from "./routes/ingredients.js";
@@ -18,7 +24,10 @@ declare module "fastify" {
 export async function buildApp(db: AppDatabase, opts?: { logger?: boolean }) {
   const app = Fastify({
     logger: opts?.logger ?? true,
-  });
+  }).withTypeProvider<ZodTypeProvider>();
+
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
 
   app.decorate("db", db);
 
@@ -26,6 +35,7 @@ export async function buildApp(db: AppDatabase, opts?: { logger?: boolean }) {
   await app.register(multipart);
 
   await app.register(swagger, {
+    transform: jsonSchemaTransform,
     openapi: {
       info: {
         title: "Meal Planner API",

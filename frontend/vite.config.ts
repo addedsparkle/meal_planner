@@ -1,9 +1,10 @@
 import { defineConfig } from "vitest/config";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [tanstackRouter({ routesDirectory: "./src/routes" }), react(), tailwindcss()],
   test: {
     environment: "node",
   },

@@ -11,7 +11,9 @@
     "migrate": "tsx src/db/migrate.ts",
     "import:csv": "tsx src/scripts/importCsv.ts",
     "export:csv": "tsx src/scripts/exportCsv.ts",
+    "generate:spec": "tsx src/scripts/generateOpenApiSpec.ts",
     "db:studio": "drizzle-kit studio",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -24,14 +26,19 @@
     "csv-parse": "^5.5.0",
     "drizzle-orm": "^0.38.0",
     "fastify": "^5.0.0",
+    "fastify-type-provider-zod": "^5.1.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^22.0.0",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
+    "typescript-eslint": "^8.57.2",
     "vitest": "^4.0.18"
   }
 }

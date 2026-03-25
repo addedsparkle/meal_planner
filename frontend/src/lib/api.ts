@@ -1,3 +1,4 @@
+import axios from "axios";
 import type {
   Recipe,
   RecipeInput,
@@ -7,159 +8,112 @@ import type {
   MealPlanInput,
   GenerateMealPlanInput,
   ShoppingListResponse,
-} from "./types";
+} from "./types.js";
 
-const API_BASE = "/api";
+const api = axios.create({ baseURL: "/api" });
 
-async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const headers: HeadersInit = {
-    ...(options?.body !== undefined && { "Content-Type": "application/json" }),
-    ...options?.headers,
-  };
-
-  const fullUrl = `${API_BASE}${url}`;
-
+api.interceptors.request.use((config) => {
   if (import.meta.env.DEV) {
-    console.log(`[API] ${options?.method ?? "GET"} ${fullUrl}`);
+    console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
   }
+  return config;
+});
 
-  const response = await fetch(fullUrl, { ...options, headers });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    const errorBody = (body as { error?: unknown } | null)?.error;
-    let message: string;
-    if (typeof errorBody === "string") {
-      message = errorBody;
-    } else if (errorBody && typeof errorBody === "object") {
-      const flat = errorBody as { fieldErrors?: Record<string, string[]>; formErrors?: string[] };
-      const fieldMsgs = Object.entries(flat.fieldErrors ?? {})
-        .map(([field, errs]) => `${field}: ${errs.join(", ")}`)
-        .join("; ");
-      const formMsgs = (flat.formErrors ?? []).join("; ");
-      message = [fieldMsgs, formMsgs].filter(Boolean).join("; ") || `Request failed: ${response.status}`;
-    } else {
-      message = `Request failed: ${response.status}`;
+api.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const body = error.response.data as { error?: string };
+      throw new Error(body.error ?? `Request failed: ${error.response.status}`);
     }
-    throw new Error(message);
-  }
-
-  // 204 No Content
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
-}
+    throw error;
+  },
+);
 
 // ── Recipes ──────────────────────────────────────────────────────────
 
-export function fetchRecipes(): Promise<Recipe[]> {
-  return apiFetch<Recipe[]>("/recipes");
+export async function fetchRecipes(): Promise<Recipe[]> {
+  const { data } = await api.get<Recipe[]>("/recipes");
+  return data;
 }
 
-export function fetchRecipe(id: number): Promise<Recipe> {
-  return apiFetch<Recipe>(`/recipes/${id}`);
+export async function fetchRecipe(id: number): Promise<Recipe> {
+  const { data } = await api.get<Recipe>(`/recipes/${id}`);
+  return data;
 }
 
-export function createRecipe(data: RecipeInput): Promise<Recipe> {
-  return apiFetch<Recipe>("/recipes", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function createRecipe(body: RecipeInput): Promise<Recipe> {
+  const { data } = await api.post<Recipe>("/recipes", body);
+  return data;
 }
 
-export function updateRecipe(
-  id: number,
-  data: RecipeInput,
-): Promise<Recipe> {
-  return apiFetch<Recipe>(`/recipes/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+export async function updateRecipe(id: number, body: RecipeInput): Promise<Recipe> {
+  const { data } = await api.put<Recipe>(`/recipes/${id}`, body);
+  return data;
 }
 
-export function deleteRecipe(id: number): Promise<void> {
-  return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
+export async function deleteRecipe(id: number): Promise<void> {
+  await api.delete(`/recipes/${id}`);
 }
-
 
 // ── Ingredients ──────────────────────────────────────────────────────
 
-export function fetchIngredients(search?: string): Promise<Ingredient[]> {
-  const params = search ? `?search=${encodeURIComponent(search)}` : "";
-  return apiFetch<Ingredient[]>(`/ingredients${params}`);
+export async function fetchIngredients(search?: string): Promise<Ingredient[]> {
+  const params = search ? { search } : {};
+  const { data } = await api.get<Ingredient[]>("/ingredients", { params });
+  return data;
 }
 
-export function createIngredient(
-  data: IngredientInput,
-): Promise<Ingredient> {
-  return apiFetch<Ingredient>("/ingredients", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function createIngredient(body: IngredientInput): Promise<Ingredient> {
+  const { data } = await api.post<Ingredient>("/ingredients", body);
+  return data;
 }
 
-export function updateIngredient(
-  id: number,
-  data: IngredientInput,
-): Promise<Ingredient> {
-  return apiFetch<Ingredient>(`/ingredients/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+export async function updateIngredient(id: number, body: IngredientInput): Promise<Ingredient> {
+  const { data } = await api.put<Ingredient>(`/ingredients/${id}`, body);
+  return data;
 }
 
-export function deleteIngredient(id: number): Promise<void> {
-  return apiFetch<void>(`/ingredients/${id}`, { method: "DELETE" });
+export async function deleteIngredient(id: number): Promise<void> {
+  await api.delete(`/ingredients/${id}`);
 }
 
 // ── Meal Plans ───────────────────────────────────────────────────────
 
-export function fetchMealPlans(): Promise<MealPlan[]> {
-  return apiFetch<MealPlan[]>("/meal-plans");
+export async function fetchMealPlans(): Promise<MealPlan[]> {
+  const { data } = await api.get<MealPlan[]>("/meal-plans");
+  return data;
 }
 
-export function fetchMealPlan(id: number): Promise<MealPlan> {
-  return apiFetch<MealPlan>(`/meal-plans/${id}`);
+export async function fetchMealPlan(id: number): Promise<MealPlan> {
+  const { data } = await api.get<MealPlan>(`/meal-plans/${id}`);
+  return data;
 }
 
-export function createMealPlan(data: MealPlanInput): Promise<MealPlan> {
-  return apiFetch<MealPlan>("/meal-plans", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function createMealPlan(body: MealPlanInput): Promise<MealPlan> {
+  const { data } = await api.post<MealPlan>("/meal-plans", body);
+  return data;
 }
 
-export function updateMealPlan(
-  id: number,
-  data: MealPlanInput,
-): Promise<MealPlan> {
-  return apiFetch<MealPlan>(`/meal-plans/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+export async function updateMealPlan(id: number, body: MealPlanInput): Promise<MealPlan> {
+  const { data } = await api.put<MealPlan>(`/meal-plans/${id}`, body);
+  return data;
 }
 
-export function deleteMealPlan(id: number): Promise<void> {
-  return apiFetch<void>(`/meal-plans/${id}`, { method: "DELETE" });
+export async function deleteMealPlan(id: number): Promise<void> {
+  await api.delete(`/meal-plans/${id}`);
 }
 
-export function generateMealPlan(
-  data: GenerateMealPlanInput,
-): Promise<MealPlan> {
-  return apiFetch<MealPlan>("/meal-plans/generate", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function generateMealPlan(body: GenerateMealPlanInput): Promise<MealPlan> {
+  const { data } = await api.post<MealPlan>("/meal-plans/generate", body);
+  return data;
 }
 
 // ── Shopping List ────────────────────────────────────────────────────
 
-export function fetchShoppingList(
-  mealPlanId: number,
-): Promise<ShoppingListResponse> {
-  return apiFetch<ShoppingListResponse>(
-    `/shopping-list?mealPlanId=${mealPlanId}`,
-  );
+export async function fetchShoppingList(mealPlanId: number): Promise<ShoppingListResponse> {
+  const { data } = await api.get<ShoppingListResponse>("/shopping-list", {
+    params: { mealPlanId },
+  });
+  return data;
 }

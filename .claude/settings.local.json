@@ -17,9 +17,7 @@
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
       "Bash(npx vitest:*)",
-      "WebFetch(domain:design.wayflyer.com)",
-      "Bash(gh issue:*)",
-      "Bash(gh auth:*)"
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

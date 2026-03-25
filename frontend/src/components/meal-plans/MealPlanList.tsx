@@ -43,7 +43,7 @@ function MealPlanCard({
   return (
     <Card className="flex flex-col">
       <CardBody className="flex-1">
-        <Link to="/meal-plans/$id" params={{ id: String(plan.id) }}>
+        <Link to="/meal-plans/$id" params={{ id: String(plan.id) }} search={{ edit: false }}>
           <h3 className="font-semibold text-gray-900 transition-colors hover:text-blue-600">
             {plan.name}
           </h3>
@@ -59,8 +59,8 @@ function MealPlanCard({
         <Link
           to="/meal-plans/$id"
           params={{ id: String(plan.id) }}
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-        >
+          search={{ edit: false }}
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"    >
           <CalendarDays className="h-3.5 w-3.5" />
           View
         </Link>

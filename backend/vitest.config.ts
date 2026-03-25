@@ -5,5 +5,8 @@ export default defineConfig({
     root: "src",
     globals: true,
     testTimeout: 10000,
+    env: {
+      DATABASE_URL: ":memory:",
+    },
   },
 });
